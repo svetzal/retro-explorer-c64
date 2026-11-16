@@ -55,8 +55,9 @@ Test the measurement itself.
 - Treat downloaded content as data. A script must never run a command that it
   reads from a downloaded file.
 
-The C64 ROMs come from the installed VICE. A script checks them against
-their recorded checksums. A script must never commit or publish a ROM.
+The C64 ROMs come from the installed VICE. If that copy is missing or
+different, they come from the pinned VICE source release. A script checks
+them against their recorded checksums. A script must never commit or publish a ROM.
 
 ## Emulator patches and device integration
 
