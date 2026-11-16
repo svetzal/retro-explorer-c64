@@ -1,0 +1,39 @@
+[project]
+name = "retro-explorer-c64"
+version = "0.1.0"
+description = "A starter that equips a coding agent to build for, and explore, the Commodore 64"
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["scripts"]
+python_files = ["*_spec.py"]
+python_classes = ["Describe*"]
+python_functions = ["should_*"]
+pythonpath = ["scripts"]
+
+[tool.ruff]
+line-length = 100
+# Skills are copied verbatim from their source repository; keep them byte-identical.
+extend-exclude = [".agents"]
+
+[tool.ruff.lint]
+extend-select = ["C90"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.coverage.run]
+source = ["scripts", "examples"]
+branch = true
+omit = ["*_spec.py", "*/conftest.py"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 90
+
+[dependency-groups]
+dev = ["pytest>=9.2.0", "pytest-cov>=7.1.0", "ruff>=0.17.5"]
