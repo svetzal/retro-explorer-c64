@@ -5,6 +5,7 @@ import json
 import shutil
 import subprocess
 import wave
+from collections.abc import Callable
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock
@@ -17,6 +18,7 @@ from c64 import (
     Check,
     Host,
     Machine,
+    Project,
     ProjectError,
     Result,
     address,
@@ -705,3 +707,40 @@ def verify_sound(sound):
             check=True,
         ).stdout
         assert '"disk demo"' in listing.lower()
+
+    @staticmethod
+    def start_template_from(starter: Path, image: Callable[[Project, Host, Build], Path]):
+        """Autostart a disk image instead of the PRG; the template's check plan applies."""
+        shutil.copytree(ROOT / "template", starter / "template", dirs_exist_ok=True)
+        project = load_project(starter / "template", starter)
+        host = Host()
+        built = c64.build(project, host, "main")
+        plan = c64.plan_for(project.require_check(), built)
+        launch = c64.Launch(
+            executable=host.executable("x64sc"),
+            rom_directory=starter / "local/roms",
+            model="c64",
+            sid="6581",
+            port=host.free_port(),
+            cycle_limit=20_000_000,
+        )
+        from_disk = plan.model_copy(update={"program": image(project, host, built)})
+        return built, host.capture(launch, from_disk, starter / "vice.log")
+
+    def should_start_the_template_from_its_disk_image(self, real_starter: Path) -> None:
+        # The run --disk path: VICE autostarts the D64, so the program must reach its
+        # checkpoint from the disk. This does not show which drive emulation loaded it.
+        built, capture = self.start_template_from(real_starter, c64.make_disk)
+
+        assert capture.reached, capture.outcome
+        assert capture.registers["PC"] == built.symbols["frame"]
+
+    def should_not_reach_the_checkpoint_from_an_empty_disk(self, real_starter: Path) -> None:
+        def empty_disk(project: Project, host: Host, built: Build) -> Path:
+            image = real_starter / "empty.d64"
+            host.run([host.executable("c1541"), "-format", "EMPTY,01", "d64", str(image)])
+            return image
+
+        _, capture = self.start_template_from(real_starter, empty_disk)
+
+        assert not capture.reached
