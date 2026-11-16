@@ -20,7 +20,7 @@ starter folder. To change a script, read [the rules for scripts](AGENTS.md).
 | `uv run python scripts/c64.py snapshot <folder>` | Runs to the checkpoint and saves the evidence. Add `--target`, `--variant` or `--audio`. |
 | `uv run python scripts/c64.py check <folder>` | Runs each target and variant to the checkpoint and compares the evidence with `expected.py`. Add `--target` or `--audio`. |
 
-The targets are `c64-pal` and `c64-ntsc`. `c64.py` returns one of these
+The targets are `c64-ntsc` (the default) and `c64-pal`. `c64.py` returns one of these
 exit statuses:
 
 - 0: the command is complete and all results pass.

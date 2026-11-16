@@ -96,7 +96,7 @@ To check both variations on both targets, paste this line:
 uv run python scripts/c64.py check examples/first-screen
 ```
 
-The check runs on the two targets in [c64.toml](c64.toml), `c64-pal` and
+The check runs on the two targets in [c64.toml](c64.toml), `c64-ntsc` and
 `c64-ntsc`. The [target tables](../../guidance/starter/toolchain.md#target-tables)
 give their machine models and firmware.
 

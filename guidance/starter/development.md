@@ -30,14 +30,14 @@ Setup selects a starting target. Setup does not establish that a program
 supports that target. Keep unknowns explicit. Do not silently select a faster
 CPU, more memory or a different chipset to make a test pass.
 
-The standard targets are `c64-pal` and `c64-ntsc`. The
+The standard targets are `c64-ntsc` and `c64-pal`. The
 [target tables](toolchain.md#target-tables) give the machine and firmware of
 each target. They also give the table to copy into `c64.toml`.
 [Project settings](toolchain.md#project-settings) describe the other settings.
 
 ### Owner choices and starter defaults
 
-When the owner names no machine, use `c64-pal` and the values of its target
+When the owner names no machine, use `c64-ntsc` and the values of its target
 table. Record each value as a starter default in the contract. State the
 defaults to the owner. Do not claim that the owner confirmed them.
 

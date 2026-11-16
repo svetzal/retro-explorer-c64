@@ -16,7 +16,7 @@ These are host executables. They are not in the uv Python environment. To
 find them, run this command:
 
 ```sh
-uv run python scripts/doctor.py --target c64-pal
+uv run python scripts/doctor.py --target c64-ntsc
 ```
 
 The doctor finds each tool and compares each ROM of the target with its
@@ -84,7 +84,7 @@ It also records the ROMs of each target.
 Bootstrap places the ROMs. For an existing checkout, use this command:
 
 ```sh
-uv run python scripts/setup.py --target c64-pal --firmware-only
+uv run python scripts/setup.py --target c64-ntsc --firmware-only
 ```
 
 Setup puts each ROM in `local/roms/C64/` from one of these sources:
@@ -136,16 +136,16 @@ older than the memory.
 
 ## Target tables
 
-The standard targets are `c64-pal` (the default) and `c64-ntsc`. Copy the
+The standard targets are `c64-ntsc` (the default) and `c64-pal`. Copy the
 table of the target into `c64.toml`. Record its values in the contract of the
 project README.
 
-| Item | `c64-pal` | `c64-ntsc` |
+| Item | `c64-ntsc` | `c64-pal` |
 | --- | --- | --- |
-| Machine | C64, PAL | C64, NTSC |
-| VICE machine and model | `x64sc`, `c64` | `x64sc`, `ntsc` |
-| Video standard | PAL, 312 lines | NTSC, 263 lines |
-| VIC-II | 6569 | 6567 |
+| Machine | C64, NTSC | C64, PAL |
+| VICE machine and model | `x64sc`, `ntsc` | `x64sc`, `c64` |
+| Video standard | NTSC, 263 lines | PAL, 312 lines |
+| VIC-II | 6567 | 6569 |
 | SID | 6581 | 6581 |
 | RAM | 64 KiB | 64 KiB |
 | KERNAL | 901227-03, revision 3 | 901227-03, revision 3 |
@@ -156,10 +156,10 @@ The VICE models `c64` and `ntsc` both use KERNAL revision 3 and the 6581 SID
 (`src/c64/c64model.c`). The line counts are from `src/c64/c64.h`.
 
 ```toml
-[targets.c64-pal]
-model = "c64"                     # VICE -model: C64 PAL
-video = "pal"
-vicii = "6569"
+[targets.c64-ntsc]
+model = "ntsc"                    # VICE -model: C64 NTSC
+video = "ntsc"
+vicii = "6567"
 sid = "6581"
 ram_kib = 64
 kernal = "kernal-901227-03.bin"
@@ -168,10 +168,10 @@ chargen = "chargen-901225-01.bin"
 ```
 
 ```toml
-[targets.c64-ntsc]
-model = "ntsc"                    # VICE -model: C64 NTSC
-video = "ntsc"
-vicii = "6567"
+[targets.c64-pal]
+model = "c64"                     # VICE -model: C64 PAL
+video = "pal"
+vicii = "6569"
 sid = "6581"
 ram_kib = 64
 kernal = "kernal-901227-03.bin"

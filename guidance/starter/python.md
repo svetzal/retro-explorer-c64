@@ -69,14 +69,14 @@ emulator checks on the other standard targets. Prepare each standard target
 before you run the full suite:
 
 ```sh
-sh scripts/bootstrap.sh c64-pal
+sh scripts/bootstrap.sh c64-ntsc
 sh scripts/bootstrap.sh c64-ntsc
 ```
 
 Then run the health check for each target and the full suite:
 
 ```sh
-uv run python scripts/doctor.py --target c64-pal &&
+uv run python scripts/doctor.py --target c64-ntsc &&
 uv run python scripts/doctor.py --target c64-ntsc &&
 uv run pytest --cov -ra
 ```

@@ -4,20 +4,20 @@ source = "main.asm"
 # The first target is the default. Copy each table from the target tables in
 # guidance/starter/toolchain.md. scripts/c64.py checks the ROMs against
 # firmware.json before launch, and checks the chips that VICE reports.
-[targets.c64-pal]
-model = "c64"                     # VICE -model: C64 PAL
-video = "pal"
-vicii = "6569"
+[targets.c64-ntsc]
+model = "ntsc"                    # VICE -model: C64 NTSC
+video = "ntsc"
+vicii = "6567"
 sid = "6581"
 ram_kib = 64
 kernal = "kernal-901227-03.bin"
 basic = "basic-901226-01.bin"
 chargen = "chargen-901225-01.bin"
 
-[targets.c64-ntsc]
-model = "ntsc"                    # VICE -model: C64 NTSC
-video = "ntsc"
-vicii = "6567"
+[targets.c64-pal]
+model = "c64"                     # VICE -model: C64 PAL
+video = "pal"
+vicii = "6569"
 sid = "6581"
 ram_kib = 64
 kernal = "kernal-901227-03.bin"

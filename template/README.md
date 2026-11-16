@@ -28,9 +28,9 @@ Write each item before you write hardware-dependent code. Keep `c64.toml`
 the same as this list. Mark a starter default as a default, not as a choice of
 the owner.
 
-- C64 model and revision: C64, PAL (starter default)
-- VICE machine and model: `x64sc`, model `c64` (starter default)
-- Video standard: PAL, VIC-II 6569 (starter default)
+- C64 model and revision: C64, NTSC (starter default)
+- VICE machine and model: `x64sc`, model `ntsc` (starter default)
+- Video standard: NTSC, VIC-II 6567 (starter default)
 - RAM: 64 KiB (starter default)
 - Sound chip: SID 6581 (starter default)
 - Firmware: KERNAL 901227-03 (revision 3), BASIC V2 901226-01 and character

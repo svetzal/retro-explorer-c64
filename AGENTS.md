@@ -44,8 +44,8 @@ explain them without tool knowledge.
 
 1. Establish the target with
    [the contract checklist](guidance/starter/development.md#establish-the-contract).
-   Use the target that the owner names. The standard targets are `c64-pal`
-   and `c64-ntsc`. When the owner names none, use `c64-pal` as a starter
+   Use the target that the owner names. The standard targets are `c64-ntsc`
+   and `c64-pal`. When the owner names none, use `c64-ntsc` as a starter
    default.
 2. Run `sh scripts/bootstrap.sh <target>`. It must finish successfully before
    any emulator launch.

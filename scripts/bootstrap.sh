@@ -3,13 +3,13 @@
 set -eu
 
 case "${1:-}" in
-    c64-pal|c64-ntsc) target=$1 ;;
+    c64-ntsc|c64-pal) target=$1 ;;
     -h|--help)
-        echo 'Usage: sh scripts/bootstrap.sh c64-pal|c64-ntsc'
+        echo 'Usage: sh scripts/bootstrap.sh c64-ntsc|c64-pal'
         echo 'Prepare Python, 64tass, VICE, verified firmware and the reference index.'
         echo 'Missing uv is installed with Homebrew when available, otherwise its official installer.'
         exit 0 ;;
-    *) echo 'Choose a machine: sh scripts/bootstrap.sh c64-pal|c64-ntsc' >&2; exit 2 ;;
+    *) echo 'Choose a machine: sh scripts/bootstrap.sh c64-ntsc|c64-pal' >&2; exit 2 ;;
 esac
 if [ "$#" -ne 1 ]; then
     echo 'Supply exactly one machine target.' >&2

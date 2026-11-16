@@ -5,10 +5,10 @@ source = "main.asm"
 # guidance/starter/toolchain.md and record its values in the README contract.
 # scripts/c64.py checks the ROMs against firmware.json before launch, and checks
 # the chips that VICE reports.
-[targets.c64-pal]
-model = "c64"                     # VICE -model: C64 PAL
-video = "pal"
-vicii = "6569"
+[targets.c64-ntsc]
+model = "ntsc"                    # VICE -model: C64 NTSC
+video = "ntsc"
+vicii = "6567"
 sid = "6581"
 ram_kib = 64
 kernal = "kernal-901227-03.bin"

@@ -27,7 +27,7 @@ jobs:
         run: uv run python scripts/native.py
       - name: Place and verify the firmware of both targets
         run: |
-          uv run python scripts/setup.py --target c64-pal --firmware-only
+          uv run python scripts/setup.py --target c64-ntsc --firmware-only
           uv run python scripts/setup.py --target c64-ntsc --firmware-only
       - name: Run the tests with the real assembler, emulator and Docling
         run: uv run pytest --cov -ra

@@ -448,7 +448,7 @@ def tools_ready() -> bool:
 
 
 needs_vice = pytest.mark.skipif(
-    not tools_ready(), reason="needs 64tass, VICE and firmware: sh scripts/bootstrap.sh c64-pal"
+    not tools_ready(), reason="needs 64tass, VICE and firmware: sh scripts/bootstrap.sh c64-ntsc"
 )
 
 

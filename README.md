@@ -46,8 +46,8 @@ Start with what you want to see or do. For example:
 
 Tell your agent which kind of C64 you have, if you know it. The C64 was made
 for two television standards, PAL and NTSC, and a program can behave
-differently on each. The starter has a target for each: `c64-pal` and
-`c64-ntsc`. If you are unsure, ask for a PAL project in the emulator. The
+differently on each. The starter has a target for each: `c64-ntsc` and
+`c64-pal`. If you are unsure, ask for an NTSC project in the emulator. The
 agent has starting defaults for that choice.
 
 Tell your agent if you want to use a real machine. The equipment of that

@@ -9,10 +9,10 @@ Run all commands from the starter folder.
 For a new project, the agent runs bootstrap with the target of the project:
 
 ```sh
-sh scripts/bootstrap.sh c64-pal
+sh scripts/bootstrap.sh c64-ntsc
 ```
 
-The targets are `c64-pal` and `c64-ntsc`. Bootstrap does these steps:
+The targets are `c64-ntsc` (the default) and `c64-pal`. Bootstrap does these steps:
 
 1. If uv is missing, it installs uv with Homebrew. If Homebrew is missing, it
    uses the [official uv installer](https://docs.astral.sh/uv/getting-started/installation/).
@@ -36,7 +36,7 @@ On other hosts, install them manually. Read
 To find them and check the firmware of a target, run:
 
 ```sh
-uv run python scripts/doctor.py --target c64-pal
+uv run python scripts/doctor.py --target c64-ntsc
 ```
 
 To install the missing tools without the other bootstrap steps, run:
@@ -63,7 +63,7 @@ If a tool is not on `PATH`, set its override variable: `TASS64`, `X64SC` or
 To place and check the ROMs of a target without the other steps, run:
 
 ```sh
-uv run python scripts/setup.py --target c64-pal --firmware-only
+uv run python scripts/setup.py --target c64-ntsc --firmware-only
 ```
 
 Setup takes the ROMs from the installed VICE. If they are not there, it
