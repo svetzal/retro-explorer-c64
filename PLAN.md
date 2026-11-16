@@ -36,5 +36,5 @@ ignored `local/` and `build/` folders and the prepared `.venv`.
 - **Host onboarding.** No check establishes the first run on a clean host.
   Linux host onboarding is not checked. Record the result for each host in
   [supported hosts](guidance/starter/toolchain.md#supported-hosts).
-- **The `c64-ntsc` target.** Its timing needs its own checks. A result on
-  `c64-pal` does not establish `c64-ntsc` behaviour.
+- **The `c64-pal` target.** Its timing needs its own checks. A result on
+  `c64-ntsc`, the default, does not establish `c64-pal` behaviour.
