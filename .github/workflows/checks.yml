@@ -1,0 +1,33 @@
+name: Starter checks
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    # macOS only: the integration checks need VICE with a window, and the
+    # coverage gate needs them. The Ubuntu path is not verified
+    # (guidance/starter/toolchain.md).
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          enable-cache: true
+      - name: Prepare locked Python environment
+        run: uv sync --locked
+      - name: Check Python style
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+      - name: Install 64tass and VICE
+        run: uv run python scripts/native.py
+      - name: Place and verify the firmware of both targets
+        run: |
+          uv run python scripts/setup.py --target c64-pal --firmware-only
+          uv run python scripts/setup.py --target c64-ntsc --firmware-only
+      - name: Run the tests with the real assembler, emulator and Docling
+        run: uv run pytest --cov -ra
