@@ -3,7 +3,13 @@ name = "retro-explorer-c64"
 version = "0.1.0"
 description = "A starter that equips a coding agent to build for, and explore, the Commodore 64"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "docling[rapidocr]>=2.150.1",
+    "numpy>=2.5.5",
+    "pillow>=13.0.0",
+    "pydantic>=2.14.3",
+    "pypdfium2>=5.15.2",
+]
 
 [tool.uv]
 package = false
@@ -14,6 +20,9 @@ python_files = ["*_spec.py"]
 python_classes = ["Describe*"]
 python_functions = ["should_*"]
 pythonpath = ["scripts"]
+markers = [
+    "integration: needs the real Docling pipeline, or 64tass, VICE and verified firmware",
+]
 
 [tool.ruff]
 line-length = 100

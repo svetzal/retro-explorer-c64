@@ -1,0 +1,23 @@
+[
+  {
+    "id": "c64-prg",
+    "title": "Commodore 64 Programmer's Reference Guide (Commodore Business Machines and Howard W. Sams, 1982)",
+    "url": "https://archive.org/download/commodore-64-programmers-reference-guide_202205/C64_Programmer%27s_Reference_Guide.pdf",
+    "sha256": "2443142849c62022d1b6c67dc87fdf71997541810f7139a477993fe617d7693d",
+    "redistribution": "Copyright Commodore Business Machines. Free public download from the Internet Archive. Not redistributed by this repository: setup downloads it into ignored local/."
+  },
+  {
+    "id": "c64-users-guide",
+    "title": "Commodore 64 User's Guide (Commodore Business Machines and Howard W. Sams, 1982)",
+    "url": "https://www.zimmers.net/anonftp/pub/cbm/manuals/c64/C64_Users_Guide.pdf",
+    "sha256": "3e096ca7f8da815a8f2f7f0ae8d1c272390b6ada84dfe19bab88d406c7dac217",
+    "redistribution": "Copyright Commodore Business Machines. Free public download from the zimmers.net Commodore archive. Not redistributed by this repository: setup downloads it into ignored local/."
+  },
+  {
+    "id": "mcs6500-programming",
+    "title": "MCS6500 Microcomputer Family Programming Manual (MOS Technology, January 1976)",
+    "url": "https://archive.org/download/6500-50a_mcs6500pgmmanjan76/6500-50A_MCS6500pgmManJan76.pdf",
+    "sha256": "a7b2ffce0ed8c876f36b78a9cabae951dc6183224d2d44d82de510ed313b6a1a",
+    "redistribution": "Copyright MOS Technology. Free public download from the Internet Archive. Not redistributed by this repository: setup downloads it into ignored local/."
+  }
+]
