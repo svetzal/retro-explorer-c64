@@ -160,8 +160,8 @@ difference against the requirement first.
 
 [The evidence the tools collect](toolchain.md#evidence-the-tools-collect)
 lists what `scripts/c64.py check` can capture and compare. If a claim needs evidence
-that the tools do not collect, the claim is untested. Say so. Offer a lab to
-add the ability.
+that the tools do not collect, the claim is untested. Say so. Explain the limit
+to the owner in plain words.
 
 A capture is not a person who looks at a window, a monitor or a physical
 machine. Never report a capture as a visual inspection.

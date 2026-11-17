@@ -8,7 +8,7 @@ gives the rules for writing guidance.
 
 | Folder | Holds | Read it when |
 | --- | --- | --- |
-| [starter/](#use-the-starter) | How to use this repository: setup, tools, references and the BUILD and LAB procedures | You set up, build, test, look up a source or work in a lab |
+| [starter/](#use-the-starter) | How to use this repository: setup, tools, references and the BUILD, LAB and SYSTEM procedures | You set up, build, test, look up a source or work in a lab |
 | [techniques/](techniques/README.md) | C64 knowledge, organized by the effect that the owner wants | You choose or apply a technique for the owner's project |
 
 Read the guide for the task at hand. Each technique guide cites its sources
@@ -23,6 +23,7 @@ work.
 - [Work on host scripts and prepare the full suite](starter/python.md).
 - [Find source pages and cite evidence](starter/references.md).
 - [Work in a lab: answer a technical question, then codify it](starter/lab.md).
+- [Change the starter itself in SYSTEM mode](starter/system.md).
 
 ## Techniques
 

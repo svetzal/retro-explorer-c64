@@ -15,25 +15,32 @@ Run its checker on each changed file and fix what it reports:
 python3 .agents/skills/simplified-technical-english/scripts/ste_check.py <file>
 ```
 
-## Two modes: BUILD and LAB
+## Three modes: BUILD, LAB and SYSTEM
 
-Every session is in one of two modes. Begin every reply with a line that
+Every session is in one of three modes. Begin every reply with a line that
 names it, so the owner always knows which mode is active:
 
 - `BUILD · <project>` (or `BUILD · new project` before it has a name)
 - `LAB · <topic> (from <project>)`
+- `SYSTEM · <topic>` (add `(from <project or lab>)` when one raised it)
 
 **BUILD** is the default. You and the owner define a game, demo or experiment
 and build it in `projects/<name>/` from the existing guides and examples.
 
-**LAB** answers one technical question that the guides and examples do not
-settle. Switch to LAB only when the owner asks or agrees. When a BUILD problem
-has no answer in the guides, explain the problem in plain words and offer a
-lab. The owner can end a lab at any time. Obey
+**LAB** answers one technical question about C64 programming that the guides
+and examples do not settle. Switch to LAB only when the owner asks or agrees.
+When a BUILD problem has no answer in the guides, explain the problem in plain
+words and offer a lab. The owner can end a lab at any time. Obey
 [the lab procedure](guidance/starter/lab.md) from opening to closing.
 
 If a project's README has an `Open lab` line, ask the owner whether to resume
 that lab or continue building.
+
+**SYSTEM** changes the starter itself: `scripts/`, the native tools,
+dependencies, `AGENTS.md` and the guides in `guidance/starter/`. Start it only
+when the owner asks for SYSTEM mode by name. Never offer it. When the starter
+has a limit, explain the limit in plain words instead. Obey
+[the system procedure](guidance/starter/system.md).
 
 ## Take responsibility for the first run
 
@@ -104,6 +111,7 @@ not write code that depends on it.
 - Finding, converting or citing a source:
   [reference lookup](guidance/starter/references.md).
 - Working in a lab: [the lab procedure](guidance/starter/lab.md).
+- Working in SYSTEM mode: [the system procedure](guidance/starter/system.md).
 - Reviewing scope or open work: [PLAN.md](PLAN.md).
 
 ## Repository boundaries
@@ -115,7 +123,7 @@ not write code that depends on it.
   `local/`. Keep build products and captures under ignored `build/`. Never
   force-add them.
 - Never add research notes, validation reports or experiment packages to
-  tracked folders. Keep them in the lab folder under `local/lab/`.
+  tracked folders. Keep them under ignored `local/lab/` or `local/system/`.
 - Work on `main` in small scoped commits. Preserve the owner's project
   folders. Do not push or publish unless the owner asks.
 - Keep this file short. Put the rules for one area in that area's AGENTS

@@ -3,7 +3,7 @@
 Read this when a session switches to LAB mode. A lab answers one technical
 question that the guides and examples do not settle yet. Examples are crackly
 audio, slow graphics, unreliable input or a display mode nobody has tried. A
-lab ends with an improvement to the starter's guides, examples or tools. Then
+lab ends with an improvement to the starter's technique guides or examples. Then
 you remove the lab.
 
 ## Open a lab
@@ -42,10 +42,9 @@ between sessions until you close the lab.
   log.
 - Read [the evidence the tools collect](toolchain.md#evidence-the-tools-collect)
   before you design an experiment. If an experiment needs an ability that the
-  tools do not have, building that ability is part of the lab. Add the ability
-  to `scripts/c64.py` with tests. Do not add it as a script in the lab. Obey
-  [the rules for scripts](../../scripts/AGENTS.md). An emulator patch or a
-  device integration also goes under `scripts/`.
+  tools do not have, do not make a tool in the lab. Explain the limit to the
+  owner in plain words. Tools change only in [SYSTEM mode](system.md), which
+  the owner starts by name.
 
 Keep the evidence honest:
 
@@ -73,7 +72,6 @@ Turn the answer into lasting, committed changes:
 - Add or update an example in `examples/<name>/` when code shows the answer
   better than prose. Obey [the rules for examples](../../examples/AGENTS.md).
   Its `scripts/c64.py check` is the reproducible evidence.
-- Commit any new tool ability with its tests.
 
 Do not commit lab notes, experiment folders, logs or captures. You delete the
 lab folder, so nothing that you commit can cite it.
@@ -93,7 +91,7 @@ finding as an open question, not as a fact.
 1. Delete `local/lab/<topic>/`.
 2. Remove the `Open lab` line from the project's `README.md`.
 3. Tell the owner, in plain words, what you found and what changed in the
-   guides, examples or tools.
+   guides or examples.
 4. Return to BUILD mode on the project that raised the question. Apply the
    answer there.
 

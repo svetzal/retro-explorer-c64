@@ -75,8 +75,8 @@ the device in each result that it produces. A result from one device does not
 establish behaviour on every compatible machine.
 
 Temporary experiment code from a lab must not become the only way to
-reproduce a result. Move the ability into a tested script before the lab
-closes.
+reproduce a result. A lab does not change the scripts. A new ability goes
+into a tested script in [SYSTEM mode](../guidance/starter/system.md).
 
 ## How scripts lose their purpose
 
