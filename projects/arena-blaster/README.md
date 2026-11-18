@@ -50,7 +50,7 @@ Three hardware slots hold player shots. The CoCo uses up to ten.
 | Reference milestone | C64 status |
 | --- | --- |
 | Level 1 teaches shooting with four grunts | Playable with sprites, diagonal controls, score, lives and respawn |
-| Level 2 teaches diagonals with eight grunts | Needs a way to draw the larger wave |
+| Level 2 teaches diagonals with eight grunts | Use the [tested character renderer](../../guidance/techniques/crowd-rendering.md) for grunts. Game integration is pending. |
 | Level 3 adds fast hunters | Pending |
 | Level 4 adds gifts after each sixth shot kill | Points, double, spread and star shots pending |
 | Level 5 adds shooters | Enemy bullets and shooter rotation pending |

@@ -8,6 +8,7 @@ time. Each guide ends with its sources and open questions.
 | --- | --- | --- |
 | Read movement and fire together | [Read held keys](held-keys.md) | NTSC VICE window trial. The example checks the idle display. Physical keyboards need a separate trial. |
 | Move actors by single pixels | [Sprite motion](sprite-motion.md) | Three sprites in NTSC VICE. Rendered crossings and 31 timed intervals. Physical hardware remains untested. |
+| Draw eight enemies with smooth movement | [Crowd rendering](crowd-rendering.md) | NTSC VICE checks for overlaps, separation and update timing. The game workload remains untested. |
 
 ## How guides get here
 
