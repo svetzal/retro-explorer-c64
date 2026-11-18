@@ -23,6 +23,8 @@ Opposite keys cancel on their axis. At a wall, you can still move along it.
 
 - Owner request: match the smooth movement of Arena Blaster on the CoCo.
   The current prototype moves in character cells.
+- Graphics choice for the next playable build: keep the room in character mode.
+  Use [hardware sprites](../../guidance/techniques/sprite-motion.md) for the player, grunt and shot.
 - Prototype choice: one room, one robot and one shot at a time.
 - Owner request: combine movement and fire keys for independent diagonal directions.
 - Owner request: use the two groups of keys from the CoCo game.

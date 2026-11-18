@@ -1,0 +1,36 @@
+# Settings for scripts/c64.py. Paths are relative to this folder.
+source = "main.asm"
+
+# The first target is the default. Copy each table from the target tables in
+# guidance/starter/toolchain.md. scripts/c64.py checks the ROMs against
+# firmware.json before launch, and checks the chips that VICE reports.
+[targets.c64-ntsc]
+model = "ntsc"                    # VICE -model: C64 NTSC
+video = "ntsc"
+vicii = "6567"
+sid = "6581"
+ram_kib = 64
+kernal = "kernal-901227-03.bin"
+basic = "basic-901226-01.bin"
+chargen = "chargen-901225-01.bin"
+
+[check]
+checkpoint = "sample"
+hit = 1
+cycle_limit = 20_000_000
+screen = 0x0400
+
+[variants.field-2]
+defines = ["SAMPLE_FIELD:=2"]
+
+[variants.field-3]
+defines = ["SAMPLE_FIELD:=3"]
+
+[variants.field-4]
+defines = ["SAMPLE_FIELD:=4"]
+
+[variants.field-5]
+defines = ["SAMPLE_FIELD:=5"]
+
+[variants.field-65]
+defines = ["SAMPLE_FIELD:=65", "TIME_UPDATES:=true"]
