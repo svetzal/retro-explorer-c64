@@ -11,10 +11,12 @@ From the repository root, run:
 uv run python scripts/c64.py run projects/arena-blaster
 ```
 
-You are the white plus sign. The red R chases you. A yellow star marks your shot.
+Press a fire key to start. The level banner stays up for two seconds.
+You are the yellow and red figure. Four green grunts chase you.
+Hold a fire key for repeated shots. A grunt gives 10 points.
 
-Press any control to start. Hold a fire key to shoot again after the previous shot clears.
-After a hit, release all controls. Press any control to play again.
+You start with three lives. Contact freezes play for 1.5 seconds before you lose a life.
+Clear the opening wave, then press a fresh fire key to play it again.
 
 Hold W and A to move up and left. Add L and semicolon to fire down and right.
 Opposite keys cancel on their axis. At a wall, you can still move along it.
@@ -22,10 +24,10 @@ Opposite keys cancel on their axis. At a wall, you can still move along it.
 ## Contract
 
 - Owner request: match the smooth movement of Arena Blaster on the CoCo.
-  The current prototype moves in character cells.
-- Graphics choice for the next playable build: keep the room in character mode.
+  The opening wave uses the CoCo level rules.
+- Graphics choice: keep the room in character mode.
   Use [hardware sprites](../../guidance/techniques/sprite-motion.md) for the player, grunt and shot.
-- Prototype choice: one room, one robot and one shot at a time.
+- Prototype choice: four grunts and three shot slots in the opening room.
 - Owner request: combine movement and fire keys for independent diagonal directions.
 - Owner request: use the two groups of keys from the CoCo game.
 - Prototype choice: W, A, S and D move up, left, down and right.
@@ -37,29 +39,46 @@ Opposite keys cancel on their axis. At a wall, you can still move along it.
 
 See the [target settings](../../guidance/starter/toolchain.md#target-tables).
 
-## Check the encounter
+## CoCo progression
 
-Run the checks from the repository root:
+The CoCo project's README, assembly, sprite art and check fixtures define the reference game.
+The C64 opening wave uses fixed starting positions. Actors update once per two NTSC fields.
+
+Each grunt chases on alternate updates. The six-digit score awards another life at each 1000 points.
+Three hardware slots hold player shots. The CoCo uses up to ten.
+
+| Reference milestone | C64 status |
+| --- | --- |
+| Level 1 teaches shooting with four grunts | Playable with sprites, diagonal controls, score, lives and respawn |
+| Level 2 teaches diagonals with eight grunts | Needs a way to draw the larger wave |
+| Level 3 adds fast hunters | Pending |
+| Level 4 adds gifts after each sixth shot kill | Points, double, spread and star shots pending |
+| Level 5 adds shooters | Enemy bullets and shooter rotation pending |
+| Level 6 adds bombs | Area damage and bullet clearing pending |
+| Level 8 adds jinxes | Slow fire, heavy movement and hunter blitz pending |
+| Later levels start with up to 20 enemies | Crowd rendering and timing need a trial |
+| Title and game over | Fire starts play. The ten-entry high-score table, initials, sound and attract sequence are pending. |
+
+Double, spread and star last ten seconds in the reference. Slow and heavy last five seconds.
+The reference keeps gifts and jinxes between levels. Death clears both.
+Grunts give 10 points, shooters give 30 and hunters give 50.
+The reference stores the high-score table in RAM until power-off.
+
+## Check the opening wave
+
+Run from the repository root:
 
 ```sh
 uv run python scripts/c64.py check projects/arena-blaster
 ```
 
-Each check compares the screen cells, their colours, the rendered picture and the border.
+The main build checks the title. The start build checks the teaching banner and the four starting positions.
+Movement checks use fixed control bits for all four diagonals, opposing keys and wall contact.
+Collision checks place one grunt near the player or shot.
 
-| Build | Setup | Expected result |
-| --- | --- | --- |
-| Main | No controls | The room waits for the first key. |
-| Strafe | Hold A and L | The player steps left and shoots down. |
-| Hit | Fire right with the robot one cell away | The robot and the shot disappear. The win message appears. |
-| Chase | Move right with a robot step due | The player and robot move closer. |
-| Caught | Shoot up with the robot one step away | The robot reaches the player. The loss message appears. |
-| Edge | Move and shoot left beside the wall | The wall stops the player and absorbs the shot. |
-| Northwest, northeast, southwest, southeast | Move diagonally and aim back | The player steps diagonally. The shot travels two cells in the opposite direction. |
-| Slide | Move and fire up and left at the left wall | The player slides up. The wall absorbs the shot. |
-| Opposed | Hold all eight controls | The player stays still and holds fire. |
-| One-axis | Hold W, S, D and O, K, semicolon | The player moves right and shoots up. |
-| Replay | Win, hold fire, release, then press A | A fresh encounter starts at the initial positions. |
+The bonus check starts at 990 points. The clear check starts with the final grunt.
+The respawn and game-over checks shorten the death pause to one update.
+Each check compares the screen, colours, border and rendered sprites in NTSC VICE.
 
-The check builds supply control bits after the keyboard scan. The main build reads the keyboard.
-The [held keys example](../../examples/held-keys/README.md) shows how to test the switches in VICE.
+See the [sprite guide](../../guidance/techniques/sprite-motion.md) for the graphics sources.
+See the [keyboard example](../../examples/held-keys/README.md) for a manual key test.

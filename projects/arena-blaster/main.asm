@@ -1,385 +1,514 @@
-; Arena Blaster. Commodore 64 Programmer's Reference Guide (c64-prg),
-; PDF 113, 347-348: CIA keyboard ports; coordinates from VICE gtk3_sym.vkm.
-; PDF 169: raster timing. PDF 342, 395, 401-402: border, screen and colours.
-; $0400-$07e7 screen, $0801 onward code/tables, $2000 onward round state.
-CHECK_INPUT :?= 0
-CHECK_ROBOT_X :?= 30
-CHECK_CHASE :?= 0
-CHECK_EDGE :?= false
-CHECK_REPLAY :?= false
+; Arena Blaster, NTSC. VIC sprite formats and positions: c64-prg PDF 152-161.
+; Raster and text arena: PDF 169, 342 and 401-402. Graphics in bank 0 at $2000.
+; Sprite 0 is the player, 1-4 are grunts and 5-7 are shots.
+TEST_KEYS :?= 0
+TEST_PLAY :?= false
+TEST_HIT :?= false
+TEST_TOUCH :?= false
+TEST_LAST :?= false
+TEST_BONUS :?= false
+TEST_EDGE :?= false
+TEST_LIVES :?= 3
+TEST_TIMER :?= 45
 screen = $0400
-colours = $d800
-blank = 32
+TitlePhase = 0
+ReadyPhase = 1
+PlayPhase = 2
+DeathPhase = 3
+ClearPhase = 4
+OverPhase = 5
 * = $0801
-        .word (+), 2026
-        .null $9e, format("%4d",start)
+        .word (+),2026
+        .null $9e,format("%4d",start)
 +       .word 0
 start   sei
         lda #$ff
         sta $dc02
+        sta $d01c
         lda #0
         sta $dc03
-        sta $d021
-        lda #6
         sta $d020
-        .if CHECK_REPLAY           ; test input timeline survives a round reset
-        lda #0
-        sta replay_tick
-        .endif
-        jsr reset
-loop    lda $d012
-        cmp #252
-        bne loop
--       cmp $d012
-        beq -
-        jsr read_keys
-        lda phase
-        cmp #2
-        bcc playable
-        lda keys
-        bne try_restart
-        sta restart_lock
-        beq end_update
-try_restart lda restart_lock
-        bne end_update
-        jsr reset
-        inc phase
-        jsr banner
-        jmp end_update
-playable lda phase
-        bne update
-        lda keys
-        beq end_update
-        inc phase
-        jsr banner
-update  jsr erase
-        jsr move_player
-        jsr contact
-        lda phase
-        cmp #1
-        bne paint
-        jsr fire
-        jsr chase
-paint   jsr actors
-end_update
-        .if CHECK_REPLAY           ; take snapshots only after the replay inputs
-        lda replay_tick
-        cmp #4
-        bcc loop
-        .endif
-frame   jmp loop
-
-reset   ldx #state_end-state-1
-        lda #0
--       sta state,x
+        lda #6
+        sta $d021
+        lda #2
+        sta $d025
+        ldx #7
+-       lda pointers,x
+        sta $07f8,x
+        lda inks,x
+        sta $d027,x
         dex
         bpl -
-        lda #20
-        .if CHECK_EDGE             ; start at the left wall for the boundary check
-        lda #1
-        .endif
-        sta px
-        lda #CHECK_ROBOT_X          ; near starts only in check variants
-        sta rx
-        lda #12
-        sta py
-        sta ry
-        lda #1
-        sta restart_lock
-        lda #18
-        .if CHECK_CHASE            ; first chase step due immediately for checks
-        lda #1
-        .endif
-        sta robot_wait
         ldx #0
--       lda #blank
-        .for offset in [0,256,512,744]
+-       lda #32
+        .for offset in [0,250,500,750]
         sta screen+offset,x
         .endfor
-        lda #1
-        .for offset in [0,256,512,744]
-        sta colours+offset,x
+        lda #14
+        .for offset in [0,250,500,750]
+        sta $d800+offset,x
         .endfor
         inx
+        cpx #250
         bne -
+        lda #160
         ldx #39
--       lda title,x
-        sta screen,x
-        lda controls,x
-        sta screen+40*24,x
-        lda #35
-        sta screen+40*2,x
-        sta screen+40*22,x
+-       sta screen+80,x
+        sta screen+920,x
         dex
         bpl -
-        .for row in range(3,22)
-        sta screen+40*row
-        sta screen+40*row+39
+        .for row in range(3,23)
+        sta screen+row*40
+        sta screen+row*40+39
         .endfor
-        jsr banner
-        jmp actors
-
-banner  ldx phase
-        lda message_offsets,x
-        tay
-        ldx #0
--       lda messages,y
-        sta screen+40,x
-        iny
-        inx
-        cpx #40
-        bne -
-        rts
-
-read_keys lda #0
-        sta keys
-        ldx #7
--       lda columns,x
-        sta $dc00
-        lda $dc01
-        and masks,x
-        clc
-        bne +
-        sec
-+       rol keys
-        dex
-        bpl -
-        .if CHECK_INPUT           ; fixed decoded controls for emulator checks
-        lda #CHECK_INPUT
+        jsr new_game
+        .if TEST_PLAY
+        lda #PlayPhase
+        .else
+        lda #TitlePhase
+        .endif
+        sta phase
+        jsr draw
+loop    jsr wait_field
+        jsr wait_field
+frame   jsr read_keys
+        .if TEST_KEYS       ; decoded controls for deterministic checks only
+        lda #TEST_KEYS
         sta keys
         .endif
-        .if CHECK_REPLAY           ; hit, hold, release, then start another round
-        ldx replay_tick
-        lda replay_input,x
-        sta keys
-        cpx #4
-        beq +
-        inc replay_tick
-+       .endif
+        lda keys
+        and #$f0
+        tax
+        eor last_fire
+        stx last_fire
+        and last_fire
+        sta pressed
+        lda phase
+        cmp #PlayPhase
+        beq play
+        cmp #TitlePhase
+        beq title_input
+        cmp #ClearPhase
+        beq title_input
+        dec timer
+        bne painted
+        lda phase
+        cmp #ReadyPhase
+        beq begin_wave
+        cmp #OverPhase
+        beq show_title
+        dec lives
+        beq game_over
+        jsr spawn
+        jmp painted
+show_title lda #TitlePhase
+        sta phase
+        jmp painted
+game_over lda #OverPhase
+        sta phase
+        lda #90
+        sta timer
+        jmp painted
+begin_wave lda #PlayPhase
+        sta phase
+        jmp painted
+title_input lda pressed
+        beq painted
+        jsr new_game
+        jmp painted
+play    inc tick
+        jsr move
+        jsr shots
+        jsr grunts
+painted jsr draw
+        jmp loop
+wait_field lda #252
+-       cmp $d012
+        bne -
+-       cmp $d012
+        beq -
         rts
 
-move_player lda move_wait
-        beq move
-        dec move_wait
+new_game lda #TEST_LIVES
+        sta lives
+        ldx #5
+        lda #0
+-       sta score,x
+        dex
+        bpl -
+        .if TEST_BONUS
+        lda #9
+        sta score+3
+        sta score+4
+        .endif
+spawn   lda #$1f
+        .if TEST_LAST
+        lda #3
+        .endif
+        sta enabled
+        lda #0
+        sta tick
+        sta reload
+        ldx #4
+-       lda start_x,x
+        sta xpos,x
+        lda start_y,x
+        sta ypos,x
+        dex
+        bpl -
+        .if TEST_HIT
+        lda #87
+        sta xpos+1
+        lda #99
+        sta ypos+1
+        .endif
+        .if TEST_TOUCH
+        lda xpos
+        sta xpos+1
+        lda ypos
+        sta ypos+1
+        .endif
+        .if TEST_EDGE
+        lda #4
+        sta xpos
+        .endif
+        lda #ReadyPhase
+        sta phase
+        lda #60
+        sta timer
         rts
+
 move    lda keys
         and #15
         tax
         lda dx,x
-        ora dy,x
-        beq done
-        lda px
+        asl
         clc
-        adc dx,x
-        cmp #1
+        adc xpos
+        cmp #4
         bcc move_y
-        cmp #39
+        cmp #151
         bcs move_y
-        sta px
-move_y  lda py
+        sta xpos
+move_y  lda dy,x
+        asl
+        asl
         clc
-        adc dy,x
-        cmp #3
-        bcc moved
-        cmp #22
-        bcs moved
-        sta py
-moved   lda #4
-        sta move_wait
-done    rts
+        adc ypos
+        cmp #24
+        bcc move_done
+        cmp #175
+        bcs move_done
+        sta ypos
+move_done rts
 
-fire    lda bullet
-        bne in_flight
-        lda keys
+shots   lda reload
+        beq aim
+        dec reload
+        jmp advance_all
+aim     lda keys
         lsr
         lsr
         lsr
         lsr
-        tax
-        lda dx,x
-        ora dy,x
-        beq done
-        stx heading
-        lda px
-        sta bx
-        lda py
-        sta by
-        inc bullet
-        bne advance
-in_flight dec shot_wait
-        bne done
-advance ldx heading
-        lda bx
+        tay
+        lda dx,y
+        ora dy,y
+        beq advance_all
+        ldx #5
+free    lda bits,x
+        and enabled
+        beq launch
+        inx
+        cpx #8
+        bne free
+        beq advance_all
+launch  lda enabled
+        ora bits,x
+        sta enabled
+        lda xpos
         clc
-        adc dx,x
-        sta bx
-        beq expire
-        cmp #39
-        beq expire
-        lda by
+        adc #2
+        sta xpos,x
+        lda ypos
         clc
-        adc dy,x
-        sta by
-        cmp #2
-        beq expire
-        cmp #22
-        beq expire
-        lda #3
-        sta shot_wait
-shot_hit lda bx
-        cmp rx
-        bne done
-        lda by
-        cmp ry
-        bne done
+        adc #4
+        sta ypos,x
+        lda dx,y
+        beq vertical_shot
+        lda dy,y
+        beq horizontal_shot
+        cmp dx,y
+        beq back_shot
+        lda #shot_forward/64
+        bne set_shape
+back_shot lda #shot_back/64
+        bne set_shape
+vertical_shot lda #shot_vertical/64
+        bne set_shape
+horizontal_shot lda #shot/64
+set_shape sta $07f8,x
+        tya
+        sta headings-5,x
         lda #2
-        sta phase
-        jsr banner
-expire  lda #0
-        sta bullet
-        rts
-
-chase   lda phase
-        cmp #1
-        bne contact_done
-        dec robot_wait
-        bne contact_done
-        lda #18
-        sta robot_wait
-        lda rx
-        cmp px
-        beq vertical
-        bcc east
-        dec rx
-        jmp robot_moved
-east    inc rx
-        jmp robot_moved
-vertical lda ry
-        cmp py
-        beq robot_moved
-        bcc south
-        dec ry
-        jmp robot_moved
-south   inc ry
-robot_moved lda bullet
-        beq contact
-        jsr shot_hit
-        lda phase
-        cmp #1
-        bne contact_done
-contact lda px
-        cmp rx
-        bne contact_done
-        lda py
-        cmp ry
-        bne contact_done
-        lda #3
-        sta phase
-        jmp banner
-contact_done rts
-
-erase   lda #blank
-        ldx px
-        ldy py
-        jsr plot
-        lda #blank
-        ldx rx
-        ldy ry
-        jsr plot
-        lda bullet
-        beq contact_done
-        lda #blank
-        ldx bx
-        ldy by
-        jmp plot
-
-actors  lda phase
-        cmp #2
-        beq player
-        lda #18                   ; R
-        ldx rx
-        ldy ry
-        jsr plot
-player  lda #43                   ; +
-        ldx px
-        ldy py
-        jsr plot
-        lda bullet
-        beq contact_done
-        lda #42                   ; *
-        ldx bx
-        ldy by
-plot    pha
-        lda row_lo,y
-        sta cell+1
-        sta ink+1
-        lda row_hi,y
-        sta cell+2
+        sta reload
+advance_all ldx #5
+next_shot stx slot
+        lda bits,x
+        and enabled
+        beq after_shot
+        ldy headings-5,x
+        lda dx,y
+        asl
+        asl
         clc
-        adc #>(colours-screen)
-        sta ink+2
-        pla
-cell    sta screen,x
-        cmp #18
-        beq red
-        cmp #42
-        beq yellow
-        lda #1
-        bne ink
-red     lda #2
-        bne ink
-yellow  lda #7
-ink     sta colours,x
+        adc xpos,x
+        cmp #4
+        bcc remove_shot
+        cmp #153
+        bcs remove_shot
+        sta xpos,x
+        lda dy,y
+        asl
+        asl
+        asl
+        clc
+        adc ypos,x
+        cmp #24
+        bcc remove_shot
+        cmp #183
+        bcs remove_shot
+        sta ypos,x
+        ldy #1
+test_grunt lda bits,y
+        and enabled
+        beq next_target
+        jsr overlap
+        bcc next_target
+        lda enabled
+        eor bits,y
+        sta enabled
+        jsr ten_points
+        ldx slot
+        jmp remove_shot
+next_target iny
+        cpy #5
+        bne test_grunt
+        beq after_shot
+remove_shot lda enabled
+        eor bits,x
+        sta enabled
+after_shot inx
+        cpx #8
+        bne next_shot
         rts
 
-row_lo  .for row in range(25)
-        .byte <(screen+row*40)
-        .endfor
-row_hi  .for row in range(25)
-        .byte >(screen+row*40)
-        .endfor
-columns .byte $fd,$fd,$fd,$fb,$ef,$ef,$df,$bf
-masks   .byte 2,4,32,4,64,32,4,4
-; Index both axes with the full direction mask: up, left, down, right.
-; Opposite keys cancel on their axis. 64tass emits signed unit steps.
-dx      .for mask in range(16)
-        .char ((mask >> 3) & 1) - ((mask >> 1) & 1)
-        .endfor
-dy      .for mask in range(16)
-        .char ((mask >> 2) & 1) - (mask & 1)
-        .endfor
-message_offsets .byte 0,40,80,120
+; Coordinates use double-width horizontal pixels. Use the visible shot bounds.
+overlap lda xpos,y
+        clc
+        adc #6
+        cmp xpos,x
+        bcc miss
+        beq miss
+        lda ypos,y
+        clc
+        adc #10
+        cmp ypos,x
+        bcc miss
+        beq miss
+        sty target
+        lda $07f8,x
+        sec
+        sbc #shot/64
+        tay
+        lda xpos,x
+        clc
+        adc shot_width,y
+        sta shot_right
+        lda ypos,x
+        clc
+        adc shot_height,y
+        ldy target
+        cmp ypos,y
+        bcc miss
+        beq miss
+        lda shot_right
+        cmp xpos,y
+        beq miss
+        rts
+miss    clc
+        rts
+
+ten_points ldx #4
+carry_digit inc score,x
+        lda score,x
+        cmp #10
+        bcc scored
+        lda #0
+        sta score,x
+        dex
+        bpl carry_digit
+scored  cpx #$ff
+        beq grant_life
+        cpx #3
+        bcs score_done
+grant_life inc lives
+score_done rts
+
+grunts  lda enabled
+        and #$1e
+        bne chase
+        lda #ClearPhase
+        sta phase
+        rts
+chase   ldx #1
+enemy   lda enabled
+        and bits,x
+        beq next_enemy
+        txa
+        eor tick
+        and #1
+        bne contact
+        lda xpos,x
+        cmp xpos
+        beq chase_y
+        bcc right
+        dec xpos,x
+        jmp chase_y
+right   inc xpos,x
+chase_y lda ypos,x
+        cmp ypos
+        beq contact
+        bcc down
+        dec ypos,x
+        lda ypos,x
+        cmp ypos
+        beq contact
+        dec ypos,x
+        jmp contact
+down    inc ypos,x
+        lda ypos,x
+        cmp ypos
+        beq contact
+        inc ypos,x
+contact lda xpos,x
+        sec
+        sbc xpos
+        clc
+        adc #5
+        cmp #11
+        bcs next_enemy
+        lda ypos,x
+        sec
+        sbc ypos
+        clc
+        adc #9
+        cmp #19
+        bcs next_enemy
+        lda #DeathPhase
+        sta phase
+        lda #TEST_TIMER
+        sta timer
+        rts
+next_enemy inx
+        cpx #5
+        bne enemy
+        rts
+
+draw    lda #0
+        sta ninth
+        ldx #7
+        ldy #14
+position clc
+        ; Add 12 logical pixels first to retain the ninth X bit.
+        lda xpos,x
+        adc #12
+        asl
+        sta $d000,y
+        bcc +
+        lda ninth
+        ora bits,x
+        sta ninth
++       lda ypos,x
+        clc
+        adc #50
+        sta $d001,y
+        dey
+        dey
+        dex
+        bpl position
+        lda ninth
+        sta $d010
+        lda enabled
+        ldx phase
+        bne +
+        lda #0
++       sta $d015
+        lda message_lo,x
+        sta copy+1
+        lda message_hi,x
+        sta copy+2
+        ldx #39
+copy    lda messages,x
+        sta screen+40,x
+        lda header,x
+        sta screen,x
+        dex
+        bpl copy
+        ldx #5
+-       lda score,x
+        ora #48
+        sta screen+19,x
+        dex
+        bpl -
+        lda lives
+        ora #48
+        sta screen+37
+        rts
+
+.include "keyboard.inc"
+shot_width .byte 4,1,3,3
+shot_height .byte 2,6,6,6
+bits    .byte 1,2,4,8,16,32,64,128
+pointers .byte player/64,grunt/64,grunt/64,grunt/64,grunt/64,shot/64,shot/64,shot/64
+inks    .byte 7,5,5,5,5,7,7,7
+start_x .byte 80,18,136,16,140
+start_y .byte 99,34,48,160,153
         .enc "screen"
-title   .text "arena blaster"
-        .fill 40-(*-title),32
-controls .text "move: w a s d       fire: o k l ;"
-        .fill 40-(*-controls),32
-messages .text "press a control to start"
-        .fill 40-(*-messages),32
-        .text "destroy the robot"
-        .fill 80-(*-messages),32
-        .text "robot down!  release, then press to play"
-        .text "caught!  release, then press to play"
-        .fill 160-(*-messages),32
-        .cerror * > $2000, "program overlaps round state"
+header  .text "arena blaster      000000      lives 3"
+        .fill 40-(*-header),32
+messages
+m_title .text "shoot to start"
+        .fill 40-(*-m_title),32
+m_ready .text "level 1   shoot the grunts"
+        .fill 40-(*-m_ready),32
+m_play  .text "level 1"
+        .fill 40-(*-m_play),32
+m_death .text "caught!"
+        .fill 40-(*-m_death),32
+m_clear .text "wave clear!  shoot to play again"
+        .fill 40-(*-m_clear),32
+m_over  .text "game over"
+        .fill 40-(*-m_over),32
+message_lo .byte <m_title,<m_ready,<m_play,<m_death,<m_clear,<m_over
+message_hi .byte >m_title,>m_ready,>m_play,>m_death,>m_clear,>m_over
+        .cerror * > $2000,"code overlaps sprite art"
 * = $2000
-state
-px      .byte 0
-py      .byte 0
-rx      .byte 0
-ry      .byte 0
-bx      .byte 0
-by      .byte 0
-bullet  .byte 0
-heading .byte 0
-phase   .byte 0
+.include "shapes.inc"
+xpos    .fill 8,0
+ypos    .fill 8,0
+headings .fill 3,0
+target  .byte 0
+shot_right .byte 0
 keys    .byte 0
-move_wait .byte 0
-robot_wait .byte 0
-shot_wait .byte 0
-restart_lock .byte 0
-state_end
-        .if CHECK_REPLAY
-replay_tick .byte 0
-replay_input .byte 128,128,0,2,0
-        .endif
+last_fire .byte 0
+pressed .byte 0
+slot    .byte 0
+enabled .byte 0
+ninth   .byte 0
+score   .fill 6,0
+lives   .byte 0
+tick    .byte 0
+reload  .byte 0
+phase   .byte 0
+timer   .byte 0
