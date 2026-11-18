@@ -164,33 +164,29 @@ move_player lda move_wait
         rts
 move    lda keys
         and #15
+        tax
+        lda dx,x
+        ora dy,x
         beq done
-        jsr direction
         lda px
         clc
         adc dx,x
         cmp #1
-        bcc done
+        bcc move_y
         cmp #39
-        bcs done
-        tay
-        lda py
+        bcs move_y
+        sta px
+move_y  lda py
         clc
         adc dy,x
         cmp #3
-        bcc done
+        bcc moved
         cmp #22
-        bcs done
+        bcs moved
         sta py
-        sty px
-        lda #4
+moved   lda #4
         sta move_wait
 done    rts
-direction ldx #$ff                ; first set bit: up, left, down, right
--       inx
-        lsr
-        bcc -
-        rts
 
 fire    lda bullet
         bne in_flight
@@ -199,8 +195,10 @@ fire    lda bullet
         lsr
         lsr
         lsr
+        tax
+        lda dx,x
+        ora dy,x
         beq done
-        jsr direction
         stx heading
         lda px
         sta bx
@@ -342,8 +340,14 @@ row_hi  .for row in range(25)
         .endfor
 columns .byte $fd,$fd,$fd,$fb,$ef,$ef,$df,$bf
 masks   .byte 2,4,32,4,64,32,4,4
-dx      .byte 0,255,0,1
-dy      .byte 255,0,1,0
+; Index both axes with the full direction mask: up, left, down, right.
+; Opposite keys cancel on their axis. 64tass emits signed unit steps.
+dx      .for mask in range(16)
+        .char ((mask >> 3) & 1) - ((mask >> 1) & 1)
+        .endfor
+dy      .for mask in range(16)
+        .char ((mask >> 2) & 1) - (mask & 1)
+        .endfor
 message_offsets .byte 0,40,80,120
         .enc "screen"
 title   .text "robot arena"

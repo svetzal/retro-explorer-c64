@@ -19,7 +19,7 @@ chargen = "chargen-901225-01.bin"
 # program must pass it, an address that must never run, and the run limit.
 [check]
 checkpoint = "frame"
-hit = 3                           # two full frames are drawn before the snapshot
+hit = 5                           # include a second shot step before the snapshot
 unreachable = ["frame+1"]         # mid-instruction: must never execute
 cycle_limit = 20_000_000          # emulated cycles from power-on
 screen = 0x0400
@@ -43,3 +43,25 @@ defines = ["CHECK_EDGE:=true", "CHECK_INPUT:=34"]
 
 [variants.replay]
 defines = ["CHECK_REPLAY:=true", "CHECK_ROBOT_X:=21"]
+
+# Low four bits move. High four bits aim. Each group uses up, left, down, right.
+[variants.northwest]
+defines = ["CHECK_INPUT:=$c3"]
+
+[variants.northeast]
+defines = ["CHECK_INPUT:=$69"]
+
+[variants.southwest]
+defines = ["CHECK_INPUT:=$96"]
+
+[variants.southeast]
+defines = ["CHECK_INPUT:=$3c"]
+
+[variants.slide]
+defines = ["CHECK_EDGE:=true", "CHECK_INPUT:=$33"]
+
+[variants.opposed]
+defines = ["CHECK_INPUT:=$ff"]
+
+[variants.one-axis]
+defines = ["CHECK_INPUT:=$bd"]
