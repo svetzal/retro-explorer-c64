@@ -22,3 +22,24 @@ checkpoint = "frame"
 hit = 3                           # two full frames are drawn before the snapshot
 unreachable = ["frame+1"]         # mid-instruction: must never execute
 cycle_limit = 20_000_000          # emulated cycles from power-on
+screen = 0x0400
+colours = 0xd800
+border_ring = 16
+
+[variants.strafe]
+defines = ["CHECK_INPUT:=66"]
+
+[variants.hit]
+defines = ["CHECK_INPUT:=128", "CHECK_ROBOT_X:=21"]
+
+[variants.chase]
+defines = ["CHECK_INPUT:=8", "CHECK_CHASE:=1"]
+
+[variants.caught]
+defines = ["CHECK_INPUT:=16", "CHECK_CHASE:=1", "CHECK_ROBOT_X:=21"]
+
+[variants.edge]
+defines = ["CHECK_EDGE:=true", "CHECK_INPUT:=34"]
+
+[variants.replay]
+defines = ["CHECK_REPLAY:=true", "CHECK_ROBOT_X:=21"]
