@@ -1,9 +1,7 @@
 # Robot Arena
 
 Build a Robotron-style game with WASD for movement and O, K, L and semicolon for fire.
-The first experiment checks whether a player can move and fire together.
-
-Open lab: movement-fire-keys
+Use the [keyboard scan](../../guidance/techniques/held-keys.md) to read movement and fire independently.
 
 ## Run
 

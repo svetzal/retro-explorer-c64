@@ -28,6 +28,7 @@ Each example README gives the commands for that example.
 | Task | Example | Targets | Scope |
 | --- | --- | --- | --- |
 | Put text on the screen | [First screen](first-screen/README.md) | C64 PAL, C64 NTSC | Border and background colours, character set 1 or 2, screen and colour memory. Rendered check of both character sets. |
+| Read held keys | [Keyboard scan](held-keys/README.md) | C64 NTSC | Independent movement and fire keys. Manual combination test and automated idle display check. |
 
 A result on one emulator configuration does not establish another model or
 physical hardware. Each example names its own targets and the procedure that

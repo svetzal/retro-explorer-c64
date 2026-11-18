@@ -6,10 +6,7 @@ time. Each guide ends with its sources and open questions.
 
 | I want to… | Read | Current evidence |
 | --- | --- | --- |
-
-There are no technique guides yet. Until there are, use the
-[reference lookup](../starter/references.md) procedure for each
-hardware-dependent fact, and say that no guide covers the work.
+| Read movement and fire together | [Read held keys](held-keys.md) | NTSC VICE window trial. The example checks the idle display. Physical keyboards need a separate trial. |
 
 ## How guides get here
 
