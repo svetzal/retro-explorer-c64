@@ -136,7 +136,7 @@ def vice_arguments(launch: Launch) -> list[str]:
         "1",
         "-limitcycles",
         str(launch.cycle_limit),
-        "-minimized",
+        "-console",
         *sound,
     ]
 

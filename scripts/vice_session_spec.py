@@ -123,6 +123,7 @@ class DescribeViceArguments:
         assert arguments[arguments.index("-directory") + 1] == f"{launch.rom_directory}:$$"
         assert arguments[arguments.index("-limitcycles") + 1] == "1000"
         assert arguments[arguments.index("-sidmodel") + 1] == "0"
+        assert "-console" in arguments
         assert "+sound" in arguments
         assert "-warp" not in arguments  # warp skips rendered frames (vsync.c)
 

@@ -8,6 +8,12 @@ ends. [The system guide](guidance/starter/system.md) gives the procedure.
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-17
+
+### Fixed
+
+- Automated checks and snapshots now use VICE console mode. Only interactive runs open an emulator window.
+
 ## [0.2.0] - 2026-11-16
 
 This is the first release. The git history has the changes before it.

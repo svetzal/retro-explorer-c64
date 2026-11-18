@@ -230,6 +230,7 @@ class DescribeCommands:
         command = c64.person_command(project, host, PAL, tmp_path / "main.prg")
 
         assert command[command.index("-directory") + 1].endswith("local/roms:$$")
+        assert "-console" not in command
         assert command[-2:] == ["-autostart", str((tmp_path / "main.prg").resolve())]
 
     def should_report_assembler_errors(self, project: c64.Project) -> None:

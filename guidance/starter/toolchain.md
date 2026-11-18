@@ -63,8 +63,7 @@ The Ubuntu path is not verified. These are the known risks:
 - The Ubuntu `vice` package can be without the C64 ROMs. Then setup takes
   the ROMs from the pinned VICE source release. Read
   [firmware and launching](#firmware-and-launching).
-- `x64sc` opens a window, also for a check. A host without a display can need
-  a virtual display, for example `xvfb-run`. No check covers this.
+- Interactive runs need a display. Automated runs use VICE console mode.
 - The Ubuntu package can have a different VICE version. The tools use
   binary monitor commands that need VICE 3.6 or later (VICE manual, sections
   13.4.22 and 13.4.24). Only VICE 3.10 is measured.
@@ -116,8 +115,8 @@ also reads the ROM bytes from the running emulator and compares them with
 uv run python scripts/c64.py run projects/<name>
 ```
 
-`snapshot` and `check` start VICE with a minimized window and no sound, and
-control it through the binary monitor. They use these `x64sc` options:
+`snapshot` and `check` start VICE in console mode. The binary monitor reads the rendered frame at the checkpoint.
+Use `--audio` to record sound. The commands use these `x64sc` options:
 
 | Option | Reason |
 | --- | --- |
@@ -128,7 +127,7 @@ control it through the binary monitor. They use these `x64sc` options:
 | `-autostart-warp` | Fast boot and load. VICE stops warp mode when autostart is complete (`src/autostart.c`). |
 | `-autostartprgmode 1` | Put the PRG directly into memory ("Inject"), not through a virtual drive or a disk image. |
 | `-limitcycles <n>` | VICE stops with an error after n emulated cycles. |
-| `-minimized` | No window in front of the person. |
+| `-console` | Skip the emulator window. VICE still renders frames for the binary monitor. |
 
 The tool does not use `-warp`. In warp mode, VICE skips rendered frames
 (`vsync_should_skip_frame` in `src/vsync.c`). Then the captured frame can be

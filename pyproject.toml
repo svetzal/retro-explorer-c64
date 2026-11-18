@@ -1,6 +1,6 @@
 [project]
 name = "retro-explorer-c64"
-version = "0.2.0"
+version = "0.2.1"
 description = "A starter that equips a coding agent to build for, and explore, the Commodore 64"
 requires-python = ">=3.12"
 dependencies = [

@@ -11,7 +11,7 @@ a listing. --disk also writes a D64 disk image with VICE's c1541.
 
 run assembles, checks the firmware, and opens x64sc with autostart for a person.
 
-snapshot runs the program headless (minimized window, no sound unless --audio)
+snapshot runs the program in VICE console mode without a window
 from power-on until the [check] checkpoint label has executed its Nth time,
 and saves the evidence: RAM, I/O, registers, the rendered frame as PNG and,
 with --audio, a WAV of the SID output and a log of SID register writes.
