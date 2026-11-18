@@ -1,5 +1,7 @@
 # Arena Blaster
 
+Open lab: projectile-rendering
+
 Build a Robotron-style game with WASD for movement and O, K, L and semicolon for fire.
 Use the [keyboard scan](../../guidance/techniques/held-keys.md) to read movement and fire independently.
 
