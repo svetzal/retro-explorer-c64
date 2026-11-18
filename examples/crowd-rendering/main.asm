@@ -1,8 +1,11 @@
-; Two parts rebuild and present character cells under independent sprites.
+; Three parts rebuild and present character cells under independent sprites.
 ; c64-prg PDF 121-123, 128-129: bank zero, screen and character pointers.
 ; PDF 152-158, 169: sprite pointers and raster. PDF 348-350: CIA timer A.
 ; --- CONTEXT: loader, arena, sprites and check instrumentation.
 SAMPLE_UPDATE :?= 1
+CHARACTER_SHOTS :?= false
+; Each grunt touches four cells. Each shot touches one more.
+cell_capacity = 32 + 10 * CHARACTER_SHOTS
 cell = $fb
 glyph = $fd
 * = $0801
@@ -60,7 +63,7 @@ start   sei
         sta $d027,x
         dex
         bpl -
-        lda #7
+        lda #(7 - 6 * CHARACTER_SHOTS)
         sta $d015
         lda #0
         sta $dc0e
@@ -71,7 +74,7 @@ start   sei
         sta $dc0e
         jsr prepare
 sync    jsr edge
-; >>> EXAMPLE 1 of 2: present the completed page and its sprites together.
+; >>> EXAMPLE 1 of 3: present the completed page and its sprites together.
 present ldx page
         lda layout,x
         sta $d018
@@ -135,7 +138,7 @@ clock_read lda $dc05
         bne clock_read
         rts
 
-; >>> EXAMPLE 2 of 2: rebuild each touched cell, merging overlapping ink.
+; >>> EXAMPLE 2 of 3: rebuild each touched cell, merging overlapping ink.
 prepare lda page
         eor #1
         sta page
@@ -143,20 +146,18 @@ prepare lda page
         lda dirty_base,x
         sta clean_end
         lda used,x
-        tax
         beq clean_done
-clean   dex
-        txa
         clc
         adc clean_end
-        tay
-        lda dirty_lo,y
+        tax
+clean   dex
+        lda dirty_lo,x
         sta wipe+1
-        lda dirty_hi,y
+        lda dirty_hi,x
         sta wipe+2
         lda #0
 wipe    sta $ffff
-        cpx #0
+        cpx clean_end
         bne clean
 clean_done
         lda #2
@@ -252,7 +253,11 @@ next_tile lda source+1
         dec actor
         bmi complete
         jmp actor_loop
-complete lda next_code
+complete
+        .if CHARACTER_SHOTS
+        jsr draw_shots
+        .endif
+        lda next_code
         sec
         sbc #2
         ldx page
@@ -321,10 +326,10 @@ row_lo  .for r in range(25)
 row_hi  .for r in range(25)
         .byte >(r*40)
         .endfor
-glyph_lo .for c in range(34)
+glyph_lo .for c in range(cell_capacity+2)
         .byte <(8*c)
         .endfor
-glyph_hi .for c in range(34)
+glyph_hi .for c in range(cell_capacity+2)
         .byte >(8*c)
         .endfor
 shift_lo .for n in range(64)
@@ -349,11 +354,11 @@ srcrow  := (q >> 1)*8+y-sy
         .endfor
         .endfor
         .endfor
-dirty_base .byte 0,32
+dirty_base .byte 0,cell_capacity
 used    .byte 0,0
 clean_end .byte 0
-dirty_lo .fill 64,0
-dirty_hi .fill 64,0
+dirty_lo .fill 2*cell_capacity,0
+dirty_hi .fill 2*cell_capacity,0
 page    .byte 0
 phase   .byte 0
 actor   .byte 0
@@ -369,3 +374,83 @@ clock_lo .fill 64,0
 clock_hi .fill 64,0
 finish_lo .fill 64,0
 finish_hi .fill 64,0
+
+        .if CHARACTER_SHOTS
+; >>> EXAMPLE 3 of 3: merge ten two-pixel squares into the hidden page.
+draw_shots lda #9
+        sta slot
+one_shot ldx slot
+scripted lda phase
+        clc
+        adc origins,x
+        sta px
+        lda phase
+        asl
+        clc
+        adc lanes,x
+dot     sta py
+        lsr
+        lsr
+        lsr
+        tay
+        lda px
+        lsr
+        lsr
+        clc
+        adc row_lo,y
+        sta cell
+        ldx page
+        lda row_hi,y
+        adc screens,x
+        sta cell+1
+        ldy #0
+        lda (cell),y
+        bne dot_reuse
+        lda next_code
+        inc next_code
+        sta (cell),y
+        ldx page
+        lda dirty_base,x
+        clc
+        adc next_code
+        tax
+        lda cell
+        sta dirty_lo-3,x
+        lda cell+1
+        sta dirty_hi-3,x
+        lda (cell),y
+        tax
+        jsr glyph_address
+        lda #0
+        .for n in range(8)
+        ldy #n
+        sta (glyph),y
+        .endfor
+        jmp ink
+dot_reuse tax
+        jsr glyph_address
+ink     lda px
+        and #3
+        tax
+        lda py
+        and #7
+        tay
+        lda masks2,x
+        ora (glyph),y
+        sta (glyph),y
+        iny
+        lda masks2,x
+        ora (glyph),y
+        sta (glyph),y
+skip_shot dec slot
+        bmi +
+        jmp one_shot
++       rts
+origins .byte 12,22,32,42,52,62,72,82,88,94
+lanes   .byte 36,40,44,48,52,56,60,48,52,44
+masks2  .byte $c0,$30,$0c,$03
+slot .byte 0
+px .byte 0
+py .byte 0
+; <<< END EXAMPLE
+        .endif

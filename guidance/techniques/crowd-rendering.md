@@ -55,11 +55,33 @@ One field takes 17,095 cycles. The example presents a new page every two fields,
 The loop must finish its preparation before the next field boundary.
 CIA timer A measures the intervals in emulated CPU cycles. Source: *Programmer's Reference Guide*, PDF 348–350.
 
-On the measured pass, 63 intervals ranged from 34,180 to 34,206 cycles.
-Preparing the hidden page took 11,893 to 12,899 cycles.
-That left at least 4,196 cycles before the first field deadline on this pass.
+On the measured pass, 63 intervals ranged from 34,184 to 34,205 cycles.
+Preparing the hidden page took 11,742 to 12,600 cycles.
+That left at least 4,495 cycles before the first field deadline on this pass.
 Clearing the entire hidden screen in the first trial missed that deadline.
 
 These measurements cover eight grunts on fixed paths, one pilot and two shots.
-Measure the complete game with pursuit, input, collisions and the status display before using this timing for level 2.
+Measure pursuit, input, collisions and the status display in the game.
 Larger crowds, multicolour enemies, PAL and physical hardware remain open.
+
+## Draw ten shots with the same ink
+
+Our adaptation draws a two-by-two square at even pixel coordinates.
+The square fits in one cell at every position. Ten shots increase the limit from 32 to 42 cells per page.
+The two address lists need 40 more bytes in total.
+
+Draw the grunts first. Allocate a clear glyph for a shot on empty floor.
+Reuse the glyph when the cell already contains ink.
+Combine the two shot rows with the existing rows using bitwise OR.
+Where both shapes cover a pixel, they share its colour.
+
+Run the crowd example check above. The shot variants compare the whole image during a crossing and after separation.
+The timing variant took 15,233 to 16,138 cycles to prepare the hidden page in NTSC VICE.
+Only the pilot used a hardware sprite. These times cover scripted paths.
+
+For a visual trial, watch the green dots cross the grunts with the `shot-crossing` variant.
+The Arena Blaster owner could follow the dots in the interactive trial.
+Individual pixels have the same colour where the shapes overlap.
+
+The [game check](../../projects/arena-blaster/README.md#check-the-two-waves) also covers collisions and pursuit.
+Give movement and collisions one field. Use the next field to prepare the hidden page.

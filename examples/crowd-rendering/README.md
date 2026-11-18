@@ -9,6 +9,7 @@ The paths repeat without player input.
 | Objects | Layer | Cost in this example |
 | --- | --- | --- |
 | Eight grunts with the same ink | Standard character mode with RAM glyphs | Up to four cells per 8 by 8 figure |
+| Ten shots with the grunt ink | Two-by-two squares on even pixel coordinates | Up to ten more cells per page |
 | Pilot and two shots | Three hardware sprites | Three of the eight sprite slots |
 
 ## Find the example
@@ -17,7 +18,9 @@ The paths repeat without player input.
 2. At `prepare`, clear the cells that this page used on its previous pass.
    Draw all eight figures on the hidden page. Combine their dots wherever they share a cell.
 
-These are the two marked parts of [main.asm](main.asm).
+3. At `draw_shots`, draw ten shots into character cells. The shot variants enable this part.
+
+These are the three marked parts of [main.asm](main.asm).
 The rails, paths, pilot, shots and timer samples provide context.
 
 ## Run in VICE
@@ -34,7 +37,7 @@ Check the rendered pictures and timing:
 uv run python scripts/c64.py check examples/crowd-rendering
 ```
 
-All builds show the same animation. The variants select checkpoints at different times.
+The shot variants keep the pilot sprite and draw ten shots on diagonal paths. The variants select checkpoints at different times.
 The timing build checks 63 intervals between updates and 64 preparation times.
 
 ## Sources

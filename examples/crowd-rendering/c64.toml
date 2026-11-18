@@ -33,3 +33,12 @@ defines = ["SAMPLE_UPDATE:=33"]
 
 [variants.timing]
 defines = ["SAMPLE_UPDATE:=65"]
+
+[variants.shot-crossing]
+defines = ["CHARACTER_SHOTS:=true", "SAMPLE_UPDATE:=30"]
+
+[variants.shot-separation]
+defines = ["CHARACTER_SHOTS:=true", "SAMPLE_UPDATE:=42"]
+
+[variants.shot-timing]
+defines = ["CHARACTER_SHOTS:=true", "SAMPLE_UPDATE:=65"]
