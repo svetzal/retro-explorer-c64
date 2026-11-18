@@ -23,20 +23,3 @@ grunt
         .byte %00100000,%10000000,%00000000  ; .G..G.
         .byte %10100000,%10100000,%00000000  ; GG..GG
         .fill 64-(*-grunt),0
-shot    .byte %10101010,0,0,%10101010,0,0
-        .fill 64-(*-shot),0
-shot_vertical
-        .for row in range(6)
-        .byte %10000000,0,0
-        .endfor
-        .fill 64-(*-shot_vertical),0
-shot_back
-        .for mask in [$80,$80,$20,$20,$08,$08]
-        .byte mask,0,0
-        .endfor
-        .fill 64-(*-shot_back),0
-shot_forward
-        .for mask in [$08,$08,$20,$20,$80,$80]
-        .byte mask,0,0
-        .endfor
-        .fill 64-(*-shot_forward),0

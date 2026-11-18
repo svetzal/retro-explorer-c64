@@ -34,25 +34,30 @@ prepare_crowd lda page
         lda dirty_base,x
         sta clean_end
         lda used,x
-        tax
         beq clean_done
-clean   dex
-        txa
         clc
         adc clean_end
-        tay
-        lda dirty_lo,y
+        tax
+clean   dex
+        lda dirty_lo,x
         sta wipe+1
-        lda dirty_hi,y
+        lda dirty_hi,x
         sta wipe+2
         lda #32
 wipe    sta $ffff
-        cpx #0
+        cpx clean_end
         bne clean
 clean_done
         lda #2
         sta next_code
-        lda #7
+        lda level
+        cmp #2
+        beq +
+        jmp complete
++       lda phase
+        bne +
+        jmp complete
++       lda #7
         sta actor
 actor_loop ldx actor
         lda bits,x
@@ -155,7 +160,11 @@ next_tile lda source+1
 advance_actor dec actor
         bmi complete
         jmp actor_loop
-complete lda next_code
+complete lda phase
+        beq +
+        jsr draw_shots
++
+        lda next_code
         sec
         sbc #2
         ldx page
@@ -180,10 +189,10 @@ row_lo  .for r in range(25)
 row_hi  .for r in range(25)
         .byte >(r*40)
         .endfor
-glyph_lo .for c in range(34)
+glyph_lo .for c in range(44)
         .byte <(8*(c+190))
         .endfor
-glyph_hi .for c in range(34)
+glyph_hi .for c in range(44)
         .byte >(8*(c+190))
         .endfor
 shift_lo .for n in range(64)
@@ -208,13 +217,91 @@ srcrow  := (q >> 1)*8+y-sy
         .endfor
         .endfor
         .endfor
-dirty_base .byte 0,32
+dirty_base .byte 0,42
 used    .byte 0,0
 clean_end .byte 0
-dirty_lo .fill 64,0
-dirty_hi .fill 64,0
+dirty_lo .fill 84,0
+dirty_hi .fill 84,0
 page    .byte 0
 actor   .byte 0
 next_code .byte 0
 x_shift .byte 0
 quadrant .byte 0
+
+
+; Even coordinates keep a two-pixel square inside a single character.
+draw_shots lda #9
+        sta slot
+one_shot ldx slot
+        lda headings,x
+        bne +
+        jmp skip_shot
++       lda shot_x,x
+        sta px
+        lda shot_y,x
+dot     sta py
+        lsr
+        lsr
+        lsr
+        tay
+        lda px
+        lsr
+        lsr
+        clc
+        adc row_lo,y
+        sta cell
+        ldx page
+        lda row_hi,y
+        adc screens,x
+        sta cell+1
+        ldy #0
+        lda (cell),y
+        cmp #32
+        bne dot_reuse
+        lda next_code
+        inc next_code
+        clc
+        adc #190
+        sta (cell),y
+        ldx page
+        lda dirty_base,x
+        clc
+        adc next_code
+        tax
+        lda cell
+        sta dirty_lo-3,x
+        lda cell+1
+        sta dirty_hi-3,x
+        ldx next_code
+        dex
+        jsr glyph_address
+        lda #0
+        .for n in range(8)
+        ldy #n
+        sta (glyph),y
+        .endfor
+        jmp ink
+dot_reuse sec
+        sbc #190
+        tax
+        jsr glyph_address
+ink     lda px
+        and #3
+        tax
+        lda py
+        and #7
+        tay
+        lda masks2,x
+        ora (glyph),y
+        sta (glyph),y
+        iny
+        lda masks2,x
+        ora (glyph),y
+        sta (glyph),y
+skip_shot dec slot
+        bmi +
+        jmp one_shot
++       rts
+masks2 .byte $c0,$30,$0c,$03
+px .byte 0
+py .byte 0

@@ -75,4 +75,4 @@ defines = ["TEST_TARGET:=7","TEST_LEVEL:=2","TEST_PLAY:=true","TEST_LAST:=true",
 defines = ["TEST_LEVEL:=2","TEST_PLAY:=true","TEST_TOUCH:=true","TEST_TIMER:=1"]
 
 [variants.crowd-timing]
-defines = ["TEST_LEVEL:=2","TEST_PLAY:=true","TEST_TIMING:=true","TEST_KEYS:=$80"]
+defines = ["TEST_LEVEL:=2","TEST_PLAY:=true","TEST_TIMING:=true","TEST_EDGE:=true","TEST_KEYS:=$80"]

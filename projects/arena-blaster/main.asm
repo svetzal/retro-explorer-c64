@@ -1,6 +1,6 @@
 ; Arena Blaster, NTSC. VIC sprite formats and positions: c64-prg PDF 152-161.
 ; Raster and text arena: PDF 169, 342 and 401-402. Graphics in bank 0 at $2000.
-; Sprite 0 is the player, 1-4 are grunts and 5-7 are shots.
+; Sprite 0 is the player, 1-4 are the first wave of grunts. Shots use character RAM.
 TEST_TIMING :?= false
 TEST_LEVEL :?= 1
 TEST_KEYS :?= 0
@@ -35,7 +35,7 @@ start   sei
         sta $d021
         lda #2
         sta $d025
-        ldx #7
+        ldx #4
 -       lda pointers,x
         sta $07f8,x
         sta $27f8,x
@@ -91,12 +91,15 @@ start   sei
         lda #TitlePhase
         .endif
         sta phase
-        jsr prepare_picture
+        jsr prepare_crowd
         jsr draw
-loop    jsr wait_field
+        jmp read_input
+; Use the first field for game logic and the second for the hidden page.
+painted jsr wait_field
         .if TEST_TIMING
-        ldx tick
-        cpx #9
+        ldx sample_count
+        inc sample_count
+        cpx #31
         bcs +
 -       lda $dc05
         ldy $dc04
@@ -105,12 +108,15 @@ loop    jsr wait_field
         sta time_hi,x
         tya
         sta time_lo,x
-+       cpx #6
-        bcc read_input
-frame   jmp read_input
++       cpx #28
+        bcc picture
+frame   jmp picture
         .else
 frame
         .endif
+picture jsr prepare_crowd
+        jsr wait_field
+        jsr draw
 read_input jsr read_keys
         .if TEST_KEYS       ; decoded controls for deterministic checks only
         lda #TEST_KEYS
@@ -153,17 +159,14 @@ begin_wave lda #PlayPhase
         sta phase
         jmp painted
 title_input lda pressed
-        beq painted
+        beq +
         jsr new_game
-        jmp painted
++       jmp painted
 play    inc tick
         jsr move
         jsr shots
         jsr grunts
-painted jsr prepare_picture
-        jsr wait_field
-        jsr draw
-        jmp loop
+        jmp painted
 wait_field lda #252
 -       cmp $d012
         bne -
@@ -185,8 +188,11 @@ new_game lda #TEST_LEVEL
         sta score+3
         sta score+4
         .endif
-spawn   lda #1
-        sta enabled
+spawn   lda #0
+        ldx #9
+-       sta headings,x
+        dex
+        bpl -
         lda #15
         ldx level
         cpx #1
@@ -295,72 +301,52 @@ aim     lda keys
         lda dx,y
         ora dy,y
         beq advance_all
-        ldx #5
-free    lda bits,x
-        and enabled
+        ldx #0
+free    lda headings,x
         beq launch
         inx
-        cpx #8
+        cpx #10
         bne free
         beq advance_all
-launch  lda enabled
-        ora bits,x
-        sta enabled
+launch  tya
+        sta headings,x
         lda xpos
         clc
         adc #2
-        sta xpos,x
+        sta shot_x,x
         lda ypos
         clc
         adc #4
-        sta ypos,x
-        lda dx,y
-        beq vertical_shot
-        lda dy,y
-        beq horizontal_shot
-        cmp dx,y
-        beq back_shot
-        lda #shot_forward/64
-        bne set_shape
-back_shot lda #shot_back/64
-        bne set_shape
-vertical_shot lda #shot_vertical/64
-        bne set_shape
-horizontal_shot lda #shot/64
-set_shape sta $07f8,x
-        sta $27f8,x
-        sta $2bf8,x
-        tya
-        sta headings-5,x
+        and #$fe
+        sta shot_y,x
         lda #2
         sta reload
-advance_all ldx #5
+advance_all ldx #0
 next_shot stx slot
-        lda bits,x
-        and enabled
+        lda headings,x
         beq after_shot
-        ldy headings-5,x
+        tay
         lda dx,y
         asl
         asl
         clc
-        adc xpos,x
+        adc shot_x,x
         cmp #4
         bcc remove_shot
         cmp #153
         bcs remove_shot
-        sta xpos,x
+        sta shot_x,x
         lda dy,y
         asl
         asl
         asl
         clc
-        adc ypos,x
+        adc shot_y,x
         cmp #24
         bcc remove_shot
         cmp #183
         bcs remove_shot
-        sta ypos,x
+        sta shot_y,x
         ldy #0
 test_grunt lda bits,y
         and enemy_mask
@@ -377,11 +363,10 @@ next_target iny
         cpy #8
         bne test_grunt
         beq after_shot
-remove_shot lda enabled
-        eor bits,x
-        sta enabled
+remove_shot lda #0
+        sta headings,x
 after_shot inx
-        cpx #8
+        cpx #10
         bne next_shot
         rts
 
@@ -389,34 +374,22 @@ after_shot inx
 overlap lda enemy_x,y
         clc
         adc grunt_width
-        cmp xpos,x
+        cmp shot_x,x
         bcc miss
         beq miss
         lda enemy_y,y
         clc
         adc grunt_height
-        cmp ypos,x
+        cmp shot_y,x
         bcc miss
         beq miss
-        sty target
-        lda $07f8,x
-        sec
-        sbc #shot/64
-        tay
-        lda xpos,x
-        clc
-        adc shot_width,y
-        sta shot_right
-        lda ypos,x
-        clc
-        adc shot_height,y
-        ldy target
-        cmp enemy_y,y
-        bcc miss
-        beq miss
-        lda shot_right
+        lda shot_x,x
         cmp enemy_x,y
-        beq miss
+        bcc miss
+        lda shot_y,x
+        clc
+        adc #1
+        cmp enemy_y,y
         rts
 miss    clc
         rts
@@ -501,26 +474,15 @@ next_enemy inx
         bne enemy
         rts
 
-prepare_picture lda level
-        cmp #2
-        bne no_crowd
-        lda phase
-        beq no_crowd
-        jmp prepare_crowd
-no_crowd rts
-
-draw    lda level
-        cmp #2
-        bne sprite_wave
-        lda phase
-        beq sprite_wave
-        ldx page
+draw    ldx page
         lda layouts,x
         sta $d018
-        lda enabled
-        jmp set_visible
-sprite_wave lda #$14
-        sta $d018
+        lda level
+        cmp #2
+        bne sprite_wave
+        lda #1
+        bne set_visible
+sprite_wave
         ldx #3
 -       lda enemy_x,x
         sta xpos+1,x
@@ -530,12 +492,12 @@ sprite_wave lda #$14
         bpl -
         lda enemy_mask
         asl
-        ora enabled
+        ora #1
 set_visible sta visible
         lda #0
         sta ninth
-        ldx #7
-        ldy #14
+        ldx #4
+        ldy #8
 position clc
         ; Add 12 logical pixels first to retain the ninth X bit.
         lda xpos,x
@@ -601,11 +563,9 @@ copy    lda messages,x
         rts
 
 .include "keyboard.inc"
-shot_width .byte 4,1,3,3
-shot_height .byte 2,6,6,6
 bits    .byte 1,2,4,8,16,32,64,128
-pointers .byte player/64,grunt/64,grunt/64,grunt/64,grunt/64,shot/64,shot/64,shot/64
-inks    .byte 7,5,5,5,5,7,7,7
+pointers .byte player/64,grunt/64,grunt/64,grunt/64,grunt/64
+inks    .byte 7,5,5,5,5
 widths .byte 6,4
 heights .byte 10,8
 start_x .byte 18,136,16,140,46,113,51,104
@@ -635,16 +595,15 @@ message_hi .byte >m_title,>m_ready,>m_play,>m_death,>m_clear,>m_over,>m_ready2,>
         .cerror * > $2000,"code overlaps sprite art"
 * = $2000
 .include "shapes.inc"
-xpos    .fill 8,0
-ypos    .fill 8,0
-headings .fill 3,0
-target  .byte 0
-shot_right .byte 0
+xpos    .fill 5,0
+ypos    .fill 5,0
+headings .fill 10,0
+shot_x  .fill 10,0
+shot_y  .fill 10,0
 keys    .byte 0
 last_fire .byte 0
 pressed .byte 0
 slot    .byte 0
-enabled .byte 0
 ninth   .byte 0
 score   .fill 6,0
 lives   .byte 0
@@ -665,8 +624,9 @@ grunt_last_y .byte 0
 contact_width .byte 0
 contact_height .byte 0
         .if TEST_TIMING
-time_lo .fill 9,0
-time_hi .fill 9,0
+sample_count .byte 0
+time_lo .fill 31,0
+time_hi .fill 31,0
         .endif
         .cerror * > $2400,"state overlaps crowd screen"
 * = $4000

@@ -1,7 +1,5 @@
 # Arena Blaster
 
-Open lab: projectile-rendering
-
 Build a Robotron-style game with WASD for movement and O, K, L and semicolon for fire.
 Use the [keyboard scan](../../guidance/techniques/held-keys.md) to read movement and fire independently.
 
@@ -29,9 +27,9 @@ Opposite keys cancel on their axis. At a wall, you can still move along it.
 - Owner request: match the smooth movement of Arena Blaster on the CoCo.
   The opening wave uses the CoCo level rules.
 - Graphics choice: keep the room in character mode.
-  Use [hardware sprites](../../guidance/techniques/sprite-motion.md) for the player, shots and first-wave grunts.
-  The second wave uses [character graphics](../../guidance/techniques/crowd-rendering.md) for eight grunts.
-- Prototype choice: four grunts and three shot slots in the opening room.
+  Use [hardware sprites](../../guidance/techniques/sprite-motion.md) for the player and first-wave grunts.
+  Both waves use [character graphics](../../guidance/techniques/crowd-rendering.md) for shots. The second wave also draws eight grunts in this layer.
+- Prototype choice: four grunts and ten shot slots in the opening room.
 - Owner request: combine movement and fire keys for independent diagonal directions.
 - Owner request: use the two groups of keys from the CoCo game.
 - Prototype choice: W, A, S and D move up, left, down and right.
@@ -49,7 +47,7 @@ The CoCo project's README, assembly, sprite art and check fixtures define the re
 The C64 opening wave uses fixed starting positions. Actors update once per two NTSC fields.
 
 Each grunt chases on alternate updates. The six-digit score awards another life at each 1000 points.
-Three hardware slots hold player shots. The CoCo uses up to ten.
+Both versions allow ten shots in flight. Each C64 shot covers two pixels across and two pixels down.
 
 | Reference milestone | C64 status |
 | --- | --- |
@@ -85,8 +83,8 @@ The respawn and game-over checks shorten the death pause to one update.
 Each check compares the screen, colours, border and rendered actors in NTSC VICE.
 
 The crowd checks cover diagonal movement and fire, a death in level 2 and a hit on the eighth grunt.
-The timing check measures eight game updates while the eight grunts pursue and the player fires repeatedly.
-At the last checkpoint, three shots are in flight.
+The timing check measures 30 game updates while the eight grunts pursue and the player fires repeatedly.
+At the last checkpoint, ten shots are in flight.
 
 See the [sprite guide](../../guidance/techniques/sprite-motion.md) for the graphics sources.
 See the [keyboard example](../../examples/held-keys/README.md) for a manual key test.

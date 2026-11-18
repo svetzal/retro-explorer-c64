@@ -50,8 +50,8 @@ SCENES = {
         "LEVEL 2",
         0,
         3,
-        (80, 99),
-        [(22, 42), (132, 56), (20, 152), (136, 145), (50, 51), (109, 156), (55, 144), (100, 42)],
+        (4, 99),
+        [(max(4, x - 15), y + min(30, abs(99-y)) * (1 if y < 99 else -1)) for x, y in WAVE_TWO],
         None,
     ),
     "crowd": ("LEVEL 2", 0, 3, (76, 91), WAVE_TWO_MOVED, (88, 115)),
@@ -129,16 +129,12 @@ def expected_frame(chargen, variant):
         actors = []
         draw_crowd(image, grunts)
     if variant == "crowd-timing":
-        for shot_x in (114, 102, 90):
-            actors.append((("YYYY", "YYYY"), (shot_x, 103)))
+        for shot_x in range(18, 127, 12):
+            image[102:104, 2*shot_x:2*shot_x+2] = 5
     if shot:
-        back = ("Y..", "Y..", ".Y.", ".Y.", "..Y", "..Y")
-        art = (
-            back
-            if variant in ("strafe", "southeast", "crowd")
-            else tuple(row[::-1] for row in back)
-        )
-        actors.insert(0, (art, shot))
+        x, y = shot
+        y &= ~1
+        image[y:y+2, 2*x:2*x+2] = 5
     if player:
         actors.append((PLAYER, player))
     draw_sprites(image, actors)
@@ -153,9 +149,9 @@ def verify_state(state, variant):
 
     def samples(name):
         start = state.symbols[name]
-        return state.ram[start : start + 9]
+        return state.ram[start : start + 31]
 
     times = [lo + 256 * hi for lo, hi in zip(samples("time_lo"), samples("time_hi"))]
     intervals = [(a - b) % 65536 for a, b in pairwise(times)]
     assert all(abs(dt - 34190) < 65 for dt in intervals), intervals
-    return f"8 game updates: {min(intervals)} to {max(intervals)} NTSC cycles"
+    return f"30 game updates: {min(intervals)} to {max(intervals)} NTSC cycles"
