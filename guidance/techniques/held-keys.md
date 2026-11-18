@@ -2,7 +2,7 @@
 
 For independent movement and fire, read the current state of each key.
 Read all eight controls on every scan. Keep scanning after the first pressed key.
-Robot Arena uses W, A, S and D for movement, and O, K, L and semicolon for fire.
+Arena Blaster uses W, A, S and D for movement, and O, K, L and semicolon for fire.
 
 ## How the scan works
 

@@ -32,7 +32,7 @@ def picture(variant):
         cells[start : start + len(text)] = codes
         ink[start : start + len(text)] = bytes([colour] * len(text))
 
-    write(0, 0, "ROBOT ARENA")
+    write(0, 0, "ARENA BLASTER")
     write(0, 1, message)
     write(0, 24, "MOVE: W A S D       FIRE: O K L ;")
     for y in (2, 22):

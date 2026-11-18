@@ -1,4 +1,4 @@
-# Robot Arena
+# Arena Blaster
 
 Build a Robotron-style game with WASD for movement and O, K, L and semicolon for fire.
 Use the [keyboard scan](../../guidance/techniques/held-keys.md) to read movement and fire independently.
@@ -8,7 +8,7 @@ Use the [keyboard scan](../../guidance/techniques/held-keys.md) to read movement
 From the repository root, run:
 
 ```sh
-uv run python scripts/c64.py run projects/robot-arena
+uv run python scripts/c64.py run projects/arena-blaster
 ```
 
 You are the white plus sign. The red R chases you. A yellow star marks your shot.
@@ -21,6 +21,8 @@ Opposite keys cancel on their axis. At a wall, you can still move along it.
 
 ## Contract
 
+- Owner request: match the smooth movement of Arena Blaster on the CoCo.
+  The current prototype moves in character cells.
 - Prototype choice: one room, one robot and one shot at a time.
 - Owner request: combine movement and fire keys for independent diagonal directions.
 - Owner request: use the two groups of keys from the CoCo game.
@@ -38,7 +40,7 @@ See the [target settings](../../guidance/starter/toolchain.md#target-tables).
 Run the checks from the repository root:
 
 ```sh
-uv run python scripts/c64.py check projects/robot-arena
+uv run python scripts/c64.py check projects/arena-blaster
 ```
 
 Each check compares the screen cells, their colours, the rendered picture and the border.

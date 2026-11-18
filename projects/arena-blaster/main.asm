@@ -1,4 +1,4 @@
-; Robot Arena. Commodore 64 Programmer's Reference Guide (c64-prg),
+; Arena Blaster. Commodore 64 Programmer's Reference Guide (c64-prg),
 ; PDF 113, 347-348: CIA keyboard ports; coordinates from VICE gtk3_sym.vkm.
 ; PDF 169: raster timing. PDF 342, 395, 401-402: border, screen and colours.
 ; $0400-$07e7 screen, $0801 onward code/tables, $2000 onward round state.
@@ -350,7 +350,7 @@ dy      .for mask in range(16)
         .endfor
 message_offsets .byte 0,40,80,120
         .enc "screen"
-title   .text "robot arena"
+title   .text "arena blaster"
         .fill 40-(*-title),32
 controls .text "move: w a s d       fire: o k l ;"
         .fill 40-(*-controls),32
