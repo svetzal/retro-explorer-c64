@@ -42,7 +42,7 @@ defines = ["TEST_PLAY:=true", "TEST_HIT:=true", "TEST_KEYS:=$80"]
 defines = ["TEST_PLAY:=true", "TEST_HIT:=true", "TEST_BONUS:=true", "TEST_KEYS:=$80"]
 
 [variants.clear]
-defines = ["TEST_PLAY:=true", "TEST_HIT:=true", "TEST_LAST:=true", "TEST_KEYS:=$80"]
+defines = ["TEST_LIVES:=2","TEST_PLAY:=true", "TEST_HIT:=true", "TEST_LAST:=true", "TEST_KEYS:=$80"]
 
 [variants.caught]
 defines = ["TEST_PLAY:=true", "TEST_TOUCH:=true"]
@@ -64,3 +64,15 @@ defines = ["TEST_PLAY:=true","TEST_KEYS:=$3c"]
 
 [variants.opposed]
 defines = ["TEST_PLAY:=true","TEST_KEYS:=$ff"]
+
+[variants.crowd]
+defines = ["TEST_LEVEL:=2","TEST_PLAY:=true","TEST_KEYS:=$c3"]
+
+[variants.victory]
+defines = ["TEST_TARGET:=7","TEST_LEVEL:=2","TEST_PLAY:=true","TEST_LAST:=true","TEST_HIT:=true","TEST_KEYS:=$80"]
+
+[variants.crowd-respawn]
+defines = ["TEST_LEVEL:=2","TEST_PLAY:=true","TEST_TOUCH:=true","TEST_TIMER:=1"]
+
+[variants.crowd-timing]
+defines = ["TEST_LEVEL:=2","TEST_PLAY:=true","TEST_TIMING:=true","TEST_KEYS:=$80"]

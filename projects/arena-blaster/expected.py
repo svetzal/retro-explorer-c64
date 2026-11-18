@@ -1,4 +1,6 @@
-"""Level-one fixtures after two game updates. Positions use wide pixels across."""
+"""Expected wave snapshots. Horizontal positions use double-width pixels."""
+
+from itertools import pairwise
 
 import numpy as np
 
@@ -28,6 +30,8 @@ GRUNT = (
 )
 START = [(18, 34), (136, 48), (16, 160), (140, 153)]
 CHASE = [(19, 36), (135, 50), (17, 158), (139, 151)]
+WAVE_TWO = START + [(46, 43), (113, 164), (51, 152), (104, 34)]
+WAVE_TWO_MOVED = CHASE + [(47, 45), (112, 162), (52, 150), (103, 36)]
 # Banner, score, lives, player, grunts, shot
 SCENES = {
     "main": ("SHOOT TO START", 0, 3, None, [], None),
@@ -41,7 +45,25 @@ SCENES = {
     "slide": ("LEVEL 1", 0, 3, (4, 91), [(17, 36), (135, 50), (15, 158), (139, 151)], None),
     "hit": ("LEVEL 1", 10, 3, (80, 99), CHASE[1:], None),
     "bonus": ("LEVEL 1", 1000, 4, (80, 99), CHASE[1:], None),
-    "clear": ("WAVE CLEAR!  SHOOT TO PLAY AGAIN", 10, 3, (80, 99), [], None),
+    "clear": ("LEVEL 2   HOLD TWO KEYS FOR DIAGONALS", 10, 2, (80, 99), WAVE_TWO, None),
+    "crowd-timing": (
+        "LEVEL 2",
+        0,
+        3,
+        (80, 99),
+        [(22, 42), (132, 56), (20, 152), (136, 145), (50, 51), (109, 156), (55, 144), (100, 42)],
+        None,
+    ),
+    "crowd": ("LEVEL 2", 0, 3, (76, 91), WAVE_TWO_MOVED, (88, 115)),
+    "victory": ("WAVE CLEAR!  SHOOT TO PLAY AGAIN", 10, 3, (80, 99), [], None),
+    "crowd-respawn": (
+        "LEVEL 2   HOLD TWO KEYS FOR DIAGONALS",
+        0,
+        2,
+        (80, 99),
+        [(80, 99), *WAVE_TWO[1:]],
+        None,
+    ),
     "caught": ("CAUGHT!", 0, 3, (80, 99), [(80, 99), *START[1:]], None),
     "game-over": ("GAME OVER", 0, 0, (80, 99), [(80, 99), *START[1:]], None),
 }
@@ -64,7 +86,36 @@ def expected_border():
 
 
 def expected_colours():
-    return bytes([14] * 1000)
+    colours = np.full((25, 40), 14, np.uint8)
+    colours[3:23, 1:39] = 5
+    return colours.tobytes()
+
+
+def draw_crowd(image, grunts):
+    shape = (
+        ".######.",
+        "##.##.##",
+        "########",
+        "#.#..#.#",
+        ".######.",
+        "..####..",
+        ".##..##.",
+        "##....##",
+    )
+    for x, y in grunts:
+        for dy, row in enumerate(shape):
+            for dx, c in enumerate(row):
+                if c == "#":
+                    image[y + dy, 2 * x + dx] = 5
+
+
+def draw_sprites(image, actors):
+    for art, (x, y) in actors:
+        for dy, row in enumerate(art):
+            for dx, c in enumerate(row):
+                if c != ".":
+                    col = 2 * (x + dx)
+                    image[y + dy, col : col + 2] = {"G": 5, "R": 2, "Y": 7}[c]
 
 
 def expected_frame(chargen, variant):
@@ -74,16 +125,37 @@ def expected_frame(chargen, variant):
     image = np.where(np.unpackbits(rows, axis=1), 14, 6).astype(np.uint8)
     _, _, _, player, grunts, shot = SCENES[variant]
     actors = [(GRUNT, pos) for pos in grunts]
+    if SCENES[variant][0].startswith("LEVEL 2"):
+        actors = []
+        draw_crowd(image, grunts)
+    if variant == "crowd-timing":
+        for shot_x in (114, 102, 90):
+            actors.append((("YYYY", "YYYY"), (shot_x, 103)))
     if shot:
         back = ("Y..", "Y..", ".Y.", ".Y.", "..Y", "..Y")
-        art = back if variant in ("strafe", "southeast") else tuple(row[::-1] for row in back)
+        art = (
+            back
+            if variant in ("strafe", "southeast", "crowd")
+            else tuple(row[::-1] for row in back)
+        )
         actors.insert(0, (art, shot))
     if player:
         actors.append((PLAYER, player))
-    for art, (x, y) in actors:
-        for dy, row in enumerate(art):
-            for dx, c in enumerate(row):
-                if c != ".":
-                    col = 2 * (x + dx)
-                    image[y + dy, col : col + 2] = {"G": 5, "R": 2, "Y": 7}[c]
+    draw_sprites(image, actors)
     return image
+
+
+def verify_state(state, variant):
+    if variant != "crowd-timing":
+        level = 2 if variant in ("clear", "crowd", "victory", "crowd-respawn") else 1
+        assert state.ram[state.symbols["level"]] == level
+        return f"level {level}"
+
+    def samples(name):
+        start = state.symbols[name]
+        return state.ram[start : start + 9]
+
+    times = [lo + 256 * hi for lo, hi in zip(samples("time_lo"), samples("time_hi"))]
+    intervals = [(a - b) % 65536 for a, b in pairwise(times)]
+    assert all(abs(dt - 34190) < 65 for dt in intervals), intervals
+    return f"8 game updates: {min(intervals)} to {max(intervals)} NTSC cycles"
