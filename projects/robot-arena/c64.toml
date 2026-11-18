@@ -1,0 +1,24 @@
+# Settings for scripts/c64.py. Paths are relative to this folder.
+source = "main.asm"
+
+# The first target is the default. Copy each table from the target tables in
+# guidance/starter/toolchain.md and record its values in the README contract.
+# scripts/c64.py checks the ROMs against firmware.json before launch, and checks
+# the chips that VICE reports.
+[targets.c64-ntsc]
+model = "ntsc"                    # VICE -model: C64 NTSC
+video = "ntsc"
+vicii = "6567"
+sid = "6581"
+ram_kib = 64
+kernal = "kernal-901227-03.bin"
+basic = "basic-901226-01.bin"
+chargen = "chargen-901225-01.bin"
+
+# For the check: the label where the snapshot is taken, how many times the
+# program must pass it, an address that must never run, and the run limit.
+[check]
+checkpoint = "frame"
+hit = 3                           # two full frames are drawn before the snapshot
+unreachable = ["frame+1"]         # mid-instruction: must never execute
+cycle_limit = 20_000_000          # emulated cycles from power-on
