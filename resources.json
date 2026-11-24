@@ -19,5 +19,46 @@
     "url": "https://archive.org/download/6500-50a_mcs6500pgmmanjan76/6500-50A_MCS6500pgmManJan76.pdf",
     "sha256": "a7b2ffce0ed8c876f36b78a9cabae951dc6183224d2d44d82de510ed313b6a1a",
     "redistribution": "Copyright MOS Technology. Free public download from the Internet Archive. Not redistributed by this repository: setup downloads it into ignored local/."
+  },
+  {
+    "id": "bauer-vic-ii",
+    "kind": "web",
+    "title": "The MOS 6567/6569 video controller (VIC-II)",
+    "citation": "Christian Bauer, revision of 2024-09-29.",
+    "accessed": "2026-11-24",
+    "notes": "The author describes the VIC-II registers, display modes, sprite DMA and raster timing. Sections 3.5 and 3.6 cover bad lines and memory access.",
+    "url": "https://www.cebix.net/VIC-Article.txt",
+    "archive_url": "https://web.archive.org/web/20261019115033/https://www.cebix.net/VIC-Article.txt",
+    "content": {
+      "format": "txt",
+      "url": "https://www.cebix.net/VIC-Article.txt"
+    }
+  },
+  {
+    "id": "covert-bitops-development",
+    "kind": "web",
+    "title": "Covert Bitops C64 development notes",
+    "citation": "Lasse Öörni (Cadaver), Covert Bitops. Dated entries.",
+    "accessed": "2026-11-24",
+    "notes": "The author records game development decisions. The notes discuss sprite multiplexer load and limits on the number of active enemies.",
+    "url": "https://cadaver.github.io/wipold.html",
+    "archive_url": "https://web.archive.org/web/20260714214841/https://cadaver.github.io/wipold.html",
+    "content": {
+      "format": "html",
+      "url": "https://cadaver.github.io/wipold.html"
+    }
+  },
+  {
+    "id": "cadaver-framework-sprites",
+    "kind": "web",
+    "title": "C64 Game Framework sprite code",
+    "citation": "Lasse Öörni (Cadaver), GitHub commit of 2026-07-15.",
+    "accessed": "2026-11-24",
+    "notes": "The assembly describes how one logical sprite can use one or more physical sprites. DrawLogicalSpriteDir and DrawLogicalSprite are the drawing entry points.",
+    "url": "https://github.com/cadaver/c64gameframework/blob/c634f6fa7004cc5bfb14df14dee6f9fa3fe20b1b/sprite.s",
+    "content": {
+      "format": "txt",
+      "url": "https://raw.githubusercontent.com/cadaver/c64gameframework/c634f6fa7004cc5bfb14df14dee6f9fa3fe20b1b/sprite.s"
+    }
   }
 ]

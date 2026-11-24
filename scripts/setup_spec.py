@@ -89,6 +89,89 @@ class DescribeProjectSetup:
         assert result == 1
         assert "not converted" in (project / "local/INDEX.md").read_text()
 
+    def should_list_web_references_without_downloading_them(
+        self,
+        project: Path,
+        resource: Resource,
+        pdf_bytes: bytes,
+        pdf_server: str,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        online_url = f"{pdf_server}/missing"
+        archive_url = "https://web.archive.org/web/20260101/https://example.org/guide"
+        web = {
+            "kind": "web",
+            "id": "web-guide",
+            "title": "Web guide",
+            "url": online_url,
+            "archive_url": archive_url,
+            "citation": "Author, 2026.",
+            "accessed": "2026-11-24",
+            "notes": "Covers sprite programming.",
+        }
+        (project / "resources.json").write_text(json.dumps([resource.model_dump(), web]))
+        cached_pdf = project / "local/references/test-book/source.pdf"
+        cached_pdf.parent.mkdir(parents=True)
+        cached_pdf.write_bytes(pdf_bytes)
+        documents = Mock(spec=DoclingGateway)
+        documents.page_count.return_value = 2
+        documents.profile.return_value = conversion_profile()
+        documents.convert_page.return_value = ConvertedPage(markdown="PDF content", document={})
+
+        assert setup.main(["--list"], project) == 0
+        assert f"web-guide: Web guide ({online_url})" in capsys.readouterr().out
+        assert setup.main(["--pages", "1:1"], project, documents=documents) == 0
+        index = (project / "local/INDEX.md").read_text()
+        assert f"Web guide: [web source]({online_url})" in index
+        assert f"[Wayback copy]({archive_url})" in index
+        assert "references/test-book/text.md" in index
+        assert not (project / "local/references/web-guide").exists()
+
+        assert setup.main(["--resource", "web-guide"], project) == 1
+        assert "Web references open in a browser: web-guide" in capsys.readouterr().err
+
+    @pytest.mark.parametrize(
+        ("extension", "endpoint", "body"),
+        [
+            ("html", "/guide", b"<article><h1>Copper guide</h1></article>\n"),
+            ("txt", "/wall.s", b"draw_wall:\n\trts\n"),
+        ],
+    )
+    def should_cache_web_bytes_and_reuse_them_after_the_source_goes_offline(
+        self, project: Path, pdf_server: str, extension: str, endpoint: str, body: bytes
+    ) -> None:
+        web = {
+            "kind": "web",
+            "id": "graphics",
+            "title": "Graphics reference",
+            "url": f"{pdf_server}/missing",
+            "citation": "Author, 2026.",
+            "accessed": "2026-11-24",
+            "notes": "Covers graphics.",
+            "content": {"format": extension, "url": pdf_server + endpoint},
+        }
+        (project / "resources.json").write_text(json.dumps([web]))
+        local = project / "local"
+
+        assert setup.main(["--guidance-only"], project) == 0
+        assert "to cache a copy" in (local / "INDEX.md").read_text()
+        assert not (local / "references").exists()
+        assert setup.main(["--resource", "graphics", "--pages", "1:1"], project) == 1
+        assert not (local / "references").exists()
+        assert setup.main(["--resource", "graphics"], project) == 0
+        (cached,) = (local / "references").rglob(f"source.{extension}")
+        assert cached.read_bytes() == body
+        assert cached.relative_to(local).as_posix() in (local / "INDEX.md").read_text()
+        assert setup.main([], project) == 0
+        assert cached.read_bytes() == body
+
+        web["content"]["url"] = f"{pdf_server}/mislabelled.pdf"
+        (project / "resources.json").write_text(json.dumps([web]))
+        assert setup.main(["--resource", "graphics"], project) == 1
+        assert "to cache a copy" in (local / "INDEX.md").read_text()
+        assert "[local copy]" not in (local / "INDEX.md").read_text()
+        assert list((local / "references").rglob(f"source.{extension}")) == [cached]
+
     def should_keep_failed_conversions_unconverted(self, project: Path, pdf_bytes: bytes) -> None:
         directory = project / "local/references/test-book"
         directory.mkdir(parents=True)
@@ -193,6 +276,7 @@ class DescribeManifestValidation:
             {"url": "http://example.com/book.pdf"},
             {"sha256": ""},
             {"title": ""},
+            {"kind": "web"},
         ],
     )
     def should_reject_unsafe_or_incomplete_resources(

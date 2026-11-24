@@ -92,7 +92,29 @@ Many C64 manuals are free to read online, and `resources.json` gives their
 location. A free download is not a licence to redistribute the source. Keep
 the downloaded copy under `local/`.
 
+## Cache a web reference
+
+The [resource manifest](../../resources.json) lists web sources alongside PDFs.
+A web entry gives its citation, access date and scope. It can include a checked
+Wayback link. To let setup cache the source, set `content.url` to the direct
+file URL. Set `content.format` to `html` for a web page or `txt` for plain text
+or code. For a GitHub source file, use a raw URL for a specific commit.
+
+```sh
+uv run python scripts/setup.py --resource bauer-vic-ii
+```
+
+Setup saves the original file in `local/references/<id>/` and links to it in
+`local/INDEX.md`. Read HTML and code as text. Cite the source URL and the
+relevant section or lines. Setup reuses the local file on the next run.
+To get a fresh copy from the same URL, remove the cached file.
+
+Use a web entry without `content` for a citation that setup cannot download.
+Use `--pages FIRST:LAST` for PDF conversion.
+
 ## Find the relevant passage
+
+For a PDF, use these steps.
 
 1. Read `local/INDEX.md` to choose a source and check its converted pages.
 
@@ -132,9 +154,8 @@ person's inspection. Defer the dependent code until then.
 
 ## When the reference is not ready
 
-An entry in the manifest or the index that is not converted is not available
-reference content. Obtain and convert the pages that you need. The
-[scripts README](../../scripts/README.md) gives the commands.
+The index shows which sources have local copies. The
+[scripts README](../../scripts/README.md) gives the setup commands.
 
 If only a sample range is converted, read the contents or the index of the
 source to find the chapter. Then convert that range.

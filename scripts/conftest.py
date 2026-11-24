@@ -60,14 +60,31 @@ def book(tmp_path: Path, pdf_bytes: bytes) -> Path:
 
 @pytest.fixture
 def pdf_server(pdf_bytes: bytes) -> Iterator[str]:
+    web = {
+        "/guide": ("text/html", b"<article><h1>Copper guide</h1></article>\n"),
+        "/wall.s": ("text/plain", b"draw_wall:\n\trts\n"),
+    }
+
     class Handler(http.server.BaseHTTPRequestHandler):
         def do_GET(self) -> None:
+            if self.path in web:
+                media_type, body = web.pop(self.path)
+                self.send_response(200)
+                self.send_header("Content-Type", media_type)
+                self.end_headers()
+                self.wfile.write(body)
+                return
+            if self.path in {"/guide", "/wall.s"}:
+                self.send_error(410)
+                return
             if self.path == "/missing":
                 self.send_error(404)
                 return
             body = b"not a PDF" if self.path == "/invalid" else pdf_bytes
             self.send_response(200)
             self.send_header("Content-Length", str(len(body)))
+            if self.path == "/mislabelled.pdf":
+                self.send_header("Content-Type", "text/plain")
             self.end_headers()
             self.wfile.write(body)
 

@@ -4,10 +4,11 @@ import hashlib
 import io
 import json
 import tempfile
+from datetime import date
 from functools import cached_property
 from importlib.metadata import version
 from pathlib import Path
-from typing import TYPE_CHECKING, Annotated
+from typing import TYPE_CHECKING, Annotated, Literal
 
 import pypdfium2 as pdfium
 from pydantic import BaseModel, ConfigDict, Field, JsonValue, StringConstraints
@@ -18,20 +19,49 @@ if TYPE_CHECKING:
     from PIL.Image import Image
 
 Sha256 = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
+ReferenceURL = Annotated[str, StringConstraints(pattern=r"^https?://")]
 ImageName = Annotated[
     str, StringConstraints(pattern=r"^page-[0-9]{5}-(?:full|figure-[0-9]{3})\.png$")
 ]
 
 
-class Resource(BaseModel):
-    """One source PDF declared in the download manifest."""
-
-    model_config = ConfigDict(frozen=True)
+class Reference(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
     id: str = Field(pattern=r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
     title: str = Field(min_length=1)
+    url: ReferenceURL
+
+
+class Resource(Reference):
+    """One source PDF that setup can download and convert."""
+
     url: str = Field(pattern=r"^https://")
     sha256: Sha256
     redistribution: str = Field(min_length=1)
+
+
+class WebContent(BaseModel):
+    """The exact URL and format of one file to cache."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+    url: ReferenceURL
+    format: Literal["html", "txt"]
+
+    def cache_path(self) -> Path:
+        key = hashlib.sha256(self.url.encode()).hexdigest()[:16]
+        return Path(key) / f"source.{self.format}"
+
+
+class WebReference(Reference):
+    """A web citation with an optional file to cache."""
+
+    kind: Literal["web"]
+    citation: str = Field(min_length=1)
+    accessed: date
+    notes: str = Field(min_length=1)
+    archive_url: ReferenceURL | None = None
+    related_links: dict[str, ReferenceURL] = Field(default_factory=dict)
+    content: WebContent | None = None
 
 
 class ConversionProfile(BaseModel):

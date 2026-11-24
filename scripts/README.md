@@ -13,7 +13,7 @@ starter folder. To change a script, read [the rules for scripts](AGENTS.md).
 | `uv run python scripts/setup.py --target <target> --firmware-only` | Places the ROMs of the target in `local/roms/C64/` and checks them. |
 | `uv run python scripts/setup.py --guidance-only` | Writes `local/INDEX.md`. It does not download anything. |
 | `uv run python scripts/setup.py --list` | Lists the references in `resources.json`. |
-| `uv run python scripts/setup.py --resource <id> --pages A:B` | Downloads one reference and converts PDF pages A to B. Repeat `--resource` for more references. |
+| `uv run python scripts/setup.py --resource ID` | Caches one source. |
 | `uv run python scripts/setup.py` | Downloads and converts all the references. This is slow. |
 | `uv run python scripts/c64.py build <folder>` | Assembles the project. Add `--variant <name>` for a variant and `--disk` for a D64. |
 | `uv run python scripts/c64.py run <folder>` | Assembles, checks the ROMs and opens VICE for a person. Add `--target`, `--variant` or `--disk`. |
@@ -36,7 +36,7 @@ exit statuses:
 | `doctor.py` | The health check of the tools and the firmware. |
 | `native.py` | Finds and installs 64tass and VICE. |
 | `firmware.py` | Places and checks the ROMs in `firmware.json`. |
-| `setup.py`, `references.py` | Download and convert the references in `resources.json`. |
+| `setup.py`, `references.py` | Cache references and convert PDF pages. |
 | `c64.py` | The project tool: settings, build, launch and the comparison with `expected.py`. |
 | `vice_session.py` | Starts `x64sc`, runs the program to the checkpoint and collects the evidence. |
 | `vice_monitor.py` | The client for the VICE binary monitor protocol. |
@@ -45,6 +45,9 @@ Each module has its spec beside it, for example `c64_spec.py`. The negative
 controls of the examples are in `c64_spec.py`. The specs marked
 `integration` use the real Docling, 64tass and VICE. They skip when a tool or
 the ROMs are missing.
+
+Use `--pages A:B` to convert a range of PDF pages. Repeat `--resource` to
+select more sources. See the [reference guide](../guidance/starter/references.md).
 
 ## Measured limits
 
